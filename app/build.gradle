@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+//应用apt插件//apply plugin: 'com.neenbedankt.android-apt'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -10,6 +10,14 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //添加如下配置 开启annotation processor
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath true
+            }
+        }
+
     }
     buildTypes {
         release {
@@ -20,6 +28,12 @@ android {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+//    implementation 'org.glassfish:javax.annotation:10.0-b28'
+    //添加apt依赖
+//    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
