@@ -25,13 +25,9 @@ public class UserService {
         String name = null;
 
         LinkedList<User> users = new LinkedList<>();
-
         while (cursor.moveToNext()) {
-            System.out.println(cursor);
-
             phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-
             //组装联系人数据
             User user = new User(name, phoneNumber);
             users.add(user);
