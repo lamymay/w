@@ -17,7 +17,11 @@ public class MyContacts {
 
     public String name;
     public String phone;
-    public String email;
     public String note;
+
+    //    public String id;
+    //    public String nickname;
+    //    public List<String> phones;
+    //    public String email;
 
 }
