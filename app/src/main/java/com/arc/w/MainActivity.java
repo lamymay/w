@@ -22,7 +22,6 @@ import com.arc.w.service.UserService;
 import com.arc.w.util.ContactTool;
 import com.arc.w.util.UserListViewAdapter;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -128,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void showContacts() {
-        ArrayList<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
+        List<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
         outputText.setText(contacts.toString());
         Log.e(TAG, "contacts:" + contacts.toString());
     }

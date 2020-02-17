@@ -24,7 +24,7 @@ public class ContactTool {
      * @param context
      * @return
      */
-    public static ArrayList<MyContact> listAllContacts(Context context) {
+    public static List<MyContact> listAllContacts1(Context context) {
         ArrayList<MyContact> contacts = new ArrayList<MyContact>();
 
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
@@ -79,32 +79,43 @@ public class ContactTool {
 
 
     //获取手机号
-    public static List<MyContact> listAllNumber(Context context) {
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;//content://com.android.contacts/data/phones
-        System.out.println(" 获取联系人电话 ContactsContract.CommonDataKinds.Phone.CONTENT_URI\n" + uri);
-        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-        String phoneNumber = null;
-        String name = null;
+        public static List<MyContact> listAllContacts(Context context) {
+            Cursor cursor = null;
+        try {
 
-        LinkedList<MyContact> users = new LinkedList<>();
-        while (cursor.moveToNext()) {
-            System.out.println(cursor);
+            Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;//content://com.android.contacts/data/phones
+            System.out.println(" 获取联系人电话 ContactsContract.CommonDataKinds.Phone.CONTENT_URI\n" + uri);
+            cursor = context.getContentResolver().query(uri, null, null, null, null);
+            String phoneNumber = null;
+            String name = null;
 
-            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            LinkedList<MyContact> users = new LinkedList<>();
+            while (cursor.moveToNext()) {
+                System.out.println(cursor);
 
-            //组装联系人数据
-            MyContact user = new MyContact(name, phoneNumber);
-            users.add(user);
+                phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+
+                //组装联系人数据
+                MyContact user = new MyContact(name, phoneNumber);
+                users.add(user);
+            }
+
+            //测试  print user bean
+            System.out.println("联系人条数=" + users.size());
+            for (MyContact user : users) {
+                System.out.println(user);
+            }
+
+            return users;
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-
-        //测试  print user bean
-        System.out.println("联系人条数=" + users.size());
-        for (MyContact user : users) {
-            System.out.println(user);
-        }
-
-        return users;
     }
 
 }
