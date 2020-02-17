@@ -9,6 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.arc.w.R;
 import com.arc.w.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +25,7 @@ import java.util.List;
  */
 public class UserListViewAdapter extends BaseAdapter {
 
-    private List<User> list= new LinkedList<>();
+    private List<User> list = new LinkedList<>();
     private Context context;
     //布局    private LinearLayout layout;
 
@@ -53,36 +57,20 @@ public class UserListViewAdapter extends BaseAdapter {
      * @param parent
      * @return
      */
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        CacheViewHolder cacheView = null;
-//        if (convertView == null) {
-//            convertView =  LayoutInflater.from(context).inflate(R.layout.call, null);
-//            TextView nameText = (TextView) convertView.findViewById(R.id.name);
-//            TextView phoneText = (TextView) convertView.findViewById(R.id.number);
-//
-//            nameText.setText(list.get(position).getName());
-//            phoneText.setText(list.get(position).getPhoneNumber());
-//
-//            convertView.setTag(new CacheViewHolder(nameText, phoneText));
-//        } else {
-//            cacheView = (CacheViewHolder) convertView.getTag();
-//            cacheView.nameTv.setText(list.get(position).getName());
-//            cacheView.phoneTv.setText(list.get(position).getPhoneNumber());
-//        }
-//        return convertView;
-//    }
-//
-//    @Setter
-//    @Getter
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    private static class CacheViewHolder {
-//        TextView nameTv;
-//        TextView phoneTv;
-//    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        //return fun1(position, convertView, parent); //测试第一种方案
+        return fun2(position, convertView, parent);
+    }
+
+    /**
+     * 不好的例子，改进前的例子
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
+    private View fun1(int position, View convertView, ViewGroup parent) {
         //加载view的权限
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         convertView = (LinearLayout) layoutInflater.inflate(R.layout.call, null);
@@ -95,5 +83,43 @@ public class UserListViewAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+
+    /**
+     * 改进后的例子
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
+    private View fun2(int position, View convertView, ViewGroup parent) {
+        CacheViewHolder cacheView = null;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.call, null);
+            TextView nameText = (TextView) convertView.findViewById(R.id.name);
+            TextView phoneText = (TextView) convertView.findViewById(R.id.number);
+
+            nameText.setText(list.get(position).getName());
+            phoneText.setText(list.get(position).getPhoneNumber());
+
+            convertView.setTag(new CacheViewHolder(nameText, phoneText));
+        } else {
+            cacheView = (CacheViewHolder) convertView.getTag();
+            cacheView.nameTv.setText(list.get(position).getName());
+            cacheView.phoneTv.setText(list.get(position).getPhoneNumber());
+        }
+        return convertView;
+    }
+
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private static class CacheViewHolder {
+        TextView nameTv;
+        TextView phoneTv;
+    }
+
 }
 

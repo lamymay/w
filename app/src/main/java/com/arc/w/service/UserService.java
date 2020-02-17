@@ -17,7 +17,6 @@ public class UserService {
 
     //获取手机号
     public static List<User> listAllNumber(Context context) {
-
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;//content://com.android.contacts/data/phones
         System.out.println(" 获取联系人电话 ContactsContract.CommonDataKinds.Phone.CONTENT_URI\n" + uri);
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
@@ -25,7 +24,6 @@ public class UserService {
         String name = null;
 
         LinkedList<User> users = new LinkedList<>();
-
         while (cursor.moveToNext()) {
             System.out.println(cursor);
 
