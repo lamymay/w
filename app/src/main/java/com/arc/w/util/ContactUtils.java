@@ -1,4 +1,4 @@
-package com.arc.w;
+package com.arc.w.util;
 
 import android.content.Context;
 import android.database.Cursor;
