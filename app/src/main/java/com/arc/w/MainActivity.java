@@ -5,6 +5,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.arc.w.service.UserService;
+import com.arc.w.util.UserListViewAdapter;
 
 /**
  * @author arc

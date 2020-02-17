@@ -1,4 +1,4 @@
-package com.arc.w;
+package com.arc.w.util;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.arc.w.R;
 import com.arc.w.model.User;
 
 import java.util.LinkedList;
