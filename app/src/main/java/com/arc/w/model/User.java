@@ -8,6 +8,7 @@ import lombok.*;
  *
  * @author may
  */
+@Deprecated
 @Getter
 @Setter
 @ToString
@@ -16,7 +17,7 @@ import lombok.*;
 public class User {
 
     public String name;
-    public String phoneNumber;
+    public String phone;
     //    public String id;
     //    public String note;
     //    public String nickname;

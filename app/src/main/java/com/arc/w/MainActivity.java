@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.arc.w.model.MyContacts;
+import com.arc.w.model.MyContact;
 import com.arc.w.service.UserService;
 import com.arc.w.util.ContactTool;
 import com.arc.w.util.UserListViewAdapter;
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void showContacts() {
-        ArrayList<MyContacts> contacts = ContactTool.listAllContacts(MainActivity.this);
+        ArrayList<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
         outputText.setText(contacts.toString());
         Log.e(TAG, "contacts:" + contacts.toString());
     }

@@ -13,10 +13,20 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class MyContacts {
+public class MyContact {
 
+    public String contactId;
     public String name;
     public String phone;
+
+    public MyContact(String name, String phone) {
+        this.name = name;
+        this.name = phone;
+    }
+
+    public MyContact() {
+    }
+
 //    public String note;
 
     //    public String id;

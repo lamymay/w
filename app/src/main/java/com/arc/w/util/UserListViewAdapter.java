@@ -65,6 +65,7 @@ public class UserListViewAdapter extends BaseAdapter {
 
     /**
      * 不好的例子，改进前的例子
+     *
      * @param position
      * @param convertView
      * @param parent
@@ -79,7 +80,7 @@ public class UserListViewAdapter extends BaseAdapter {
 
         User user = list.get(position);
         nameTextView.setText(user.getName());
-        numberTextView.setText(user.getPhoneNumber());
+        numberTextView.setText(user.getPhone());
 
         return convertView;
     }
@@ -87,6 +88,7 @@ public class UserListViewAdapter extends BaseAdapter {
 
     /**
      * 改进后的例子
+     *
      * @param position
      * @param convertView
      * @param parent
@@ -100,13 +102,13 @@ public class UserListViewAdapter extends BaseAdapter {
             TextView phoneText = (TextView) convertView.findViewById(R.id.number);
 
             nameText.setText(list.get(position).getName());
-            phoneText.setText(list.get(position).getPhoneNumber());
+            phoneText.setText(list.get(position).getPhone());
 
             convertView.setTag(new CacheViewHolder(nameText, phoneText));
         } else {
             cacheView = (CacheViewHolder) convertView.getTag();
             cacheView.nameTv.setText(list.get(position).getName());
-            cacheView.phoneTv.setText(list.get(position).getPhoneNumber());
+            cacheView.phoneTv.setText(list.get(position).getPhone());
         }
         return convertView;
     }
