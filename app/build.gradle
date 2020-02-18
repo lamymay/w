@@ -13,12 +13,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        //添加如下配置 开启annotation processor
-        javaCompileOptions {
-            annotationProcessorOptions {
-                includeCompileClasspath true
-            }
-        }
+//        //Lombok 添加如下配置 开启annotation processor
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                includeCompileClasspath true
+//            }
+//        }
 
     }
     buildTypes {
@@ -31,10 +31,10 @@ android {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
-//    implementation 'org.glassfish:javax.annotation:10.0-b28'
+    //    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     //添加apt依赖
-//    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    //    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    //    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'

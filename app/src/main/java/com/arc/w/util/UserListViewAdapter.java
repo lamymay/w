@@ -9,10 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.arc.w.R;
 import com.arc.w.model.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -114,13 +110,21 @@ public class UserListViewAdapter extends BaseAdapter {
     }
 
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    //    @Setter
+//    @Getter
+//    @NoArgsConstructor
+//    @AllArgsConstructor
     private static class CacheViewHolder {
         TextView nameTv;
         TextView phoneTv;
+
+        public CacheViewHolder() {
+        }
+
+        public CacheViewHolder(TextView nameTv, TextView phoneTv) {
+            this.nameTv = nameTv;
+            this.phoneTv = phoneTv;
+        }
     }
 
 }
