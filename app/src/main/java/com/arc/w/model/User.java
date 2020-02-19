@@ -6,7 +6,7 @@ package com.arc.w.model;
  *
  * @author may
  */
-@Deprecated
+//@Deprecated
 //@Getter
 //@Setter
 //@ToString

@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -47,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         testCrudContactAndShow();
     }
 
+    //init layout  with method
     private void testCrudContactAndShow() {
         // 写几个按钮，对于不同按钮分别绑定crud是事件
         Button saveButton = findViewById(R.id.saveBtn);
@@ -88,28 +88,53 @@ public class MainActivity extends AppCompatActivity {
         getButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "get", Toast.LENGTH_SHORT).show();
+                getOne();
             }
+
         });
 
         //listAll
         listAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "listAll", Toast.LENGTH_SHORT).show();
-
-                String[] permissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE};
-                addPermissionsByPermissionList(MainActivity.this, permissions, PERMISSION_CONTACT);
+                listAll();
             }
+
+
         });
 
     }
 
     //========================== 第2个测试 START================================
+
+
+    /**
+     * 输出显示一个bean
+     */
+    private void getOne() {
+        String name = "叶超";
+        //查询并组装
+        MyContact contact = ContactTool.getContactByDisplayName(name, this);
+        System.out.println("##############################################");
+        System.out.println("根据名称=" + name + ",查询出的电话号码是\n" + contact);
+        System.out.println("##############################################");
+
+        //输出显示
+        outputText.setText(contact.toString());
+        Toast.makeText(MainActivity.this, "getContactByDisplayName\n" + name + " contact=" + contact, Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void listAll() {
+        Toast.makeText(MainActivity.this, "listAll", Toast.LENGTH_SHORT).show();
+        String[] permissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE};
+        addPermissionsByPermissionList(MainActivity.this, permissions, PERMISSION_CONTACT);
+    }
+
+    //-----
     private static final String TAG = "Contact_Test";
     //permission
     private static final int PERMISSION_CONTACT = 1;
-    private Button onClick;
 
     //数据输出展示的地方
     private TextView outputText;
@@ -126,10 +151,9 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
-    private void showContacts() {
-        List<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
-        outputText.setText(contacts.toString());
-        Log.e(TAG, "contacts:" + contacts.toString());
+    private void showContacts(String msg) {
+        outputText.setText(msg);
+        //Log.e(TAG, "contacts:" + msg);
     }
 
     /**
@@ -148,7 +172,8 @@ public class MainActivity extends AppCompatActivity {
 
             //非初次进入App且已授权
             if (mPermissionList.isEmpty()) {
-                showContacts();
+                List<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
+                showContacts(contacts.toString());
                 Toast.makeText(this, "已授权", Toast.LENGTH_SHORT).show();
             } else {
                 //请求权限方法
@@ -156,8 +181,6 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(activity, permissionsNew, request); //这个触发下面onRequestPermissionsResult这个回调
             }
         }
-
-
     }
 
     /**
@@ -176,7 +199,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (hasAllGranted) { //同意权限做的处理,开启服务提交通讯录
-            showContacts();
+            List<MyContact> contacts = ContactTool.listAllContacts(MainActivity.this);
+            showContacts(contacts.toString());
             Toast.makeText(this, "同意授权", Toast.LENGTH_SHORT).show();
         } else {    //拒绝授权做的处理，弹出弹框提示用户授权
             dealwithPermiss(MainActivity.this, permissions[0]);

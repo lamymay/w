@@ -1,62 +1,39 @@
 package com.arc.w.model;
 
+import lombok.*;
+
 /**
  * 用户实体
  * 注解是使用插件 Lombok， bean可以省略手动写getter setter
  *
  * @author may
  */
-public class MyContact {
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class MyContact implements  Comparable{
 
-    public String contactId;
-    public String name;
+    public String id;
+    public String displayName;
     public String phone;
 
-    public MyContact(String name, String phone) {
-        this.name = name;
-        this.name = phone;
+    public String hasPhoneNumber;
+
+    @Override
+    public int compareTo(Object o) {
+        return 0;
     }
 
-    public MyContact() {
-    }
 
-//    public String note;
-
-    //    public String id;
+    //    public String note;
     //    public String nickname;
     //    public List<String> phones;
     //    public String email;
 
+    //    public MyContact() {
+    //    }
 
 
-    public MyContact(String contactId, String name, String phone) {
-        this.contactId = contactId;
-        this.name = name;
-        this.phone = phone;
-    }
-
-    // getter setter
-    public String getContactId() {
-        return contactId;
-    }
-
-    public void setContactId(String contactId) {
-        this.contactId = contactId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 }
