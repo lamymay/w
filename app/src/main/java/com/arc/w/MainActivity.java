@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.alibaba.fastjson.JSON;
 import com.arc.w.model.AppContact;
 import com.arc.w.service.AppContactService;
 import com.arc.w.util.ContactTool;
@@ -184,15 +183,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public final static String uriForPostListAll = "localhost:8001/zero/contacts/sync";
+    public final static String uriForPostListAll = "http://192.168.2.195:8001/zero/contacts/sync";
 
 
     private void post(final List<AppContact> contacts) {
+        System.out.println("########################################");
         //开启线程，发送请求
         new Thread(new Runnable() {
             @Override
             public void run() {
-
 
                 HttpURLConnection connection = null;
                 BufferedReader reader = null;
@@ -219,19 +218,27 @@ public class MainActivity extends AppCompatActivity {
                     connection.setRequestProperty("Charset", "UTF-8");
                     // 设置HTTP请求属性 - 传输内容的类型 - 简单表单
 //                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    connection.setRequestProperty("Content-Type", "application/json");
-
+//                    connection.setRequestProperty("Content-Type", "application/json");
+                    //设置参数类型是json格式
+                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 
                     //contacts
-                    String params = JSON.toJSONString(contacts);
+//                    String params = JSON.toJSONString(contacts);
                     // 设置HTTP请求属性 - 传输内容的长度
-                    connection.setRequestProperty("Content-Length", String.valueOf(params.length()));
 
                     // 发送参数 ，采用字符流发送数据
-                    PrintWriter pw = new PrintWriter(connection.getOutputStream());
-                    pw.write(params);
-                    pw.flush();
-                    pw.close();
+//                    PrintWriter pw = new PrintWriter(connection.getOutputStream());
+//
+//                    pw.write(params);
+//                    pw.flush();
+//                    pw.close();
+
+                    String body = "[{},{}]";
+                    connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
+                    writer.write(body);
+                    writer.close();
 
                     //返回输入流
                     InputStream in = connection.getInputStream();
@@ -264,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+
+        System.out.println("################## END ######################");
+
     }
 
     /**
