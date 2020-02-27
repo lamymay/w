@@ -1,10 +1,12 @@
 package com.arc.w.util;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import com.arc.w.model.MyContact;
+import com.arc.w.model.AppContact;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,27 +27,27 @@ public class ContactTool {
      * @param context
      * @return
      */
-    public static List<MyContact> listAllContacts(Context context) {
-        Map<String, MyContact> map = getMapByListAllContacts(context);
+    public static List<AppContact> listAllContacts(Context context) {
+        Map<String, AppContact> map = getMapByListAllContacts(context);
         if (map == null) {
             return null;
         }
-        List<MyContact> result = new ArrayList<>(map.size());
-        for (MyContact value : map.values()) {
+        List<AppContact> result = new ArrayList<>(map.size());
+        for (AppContact value : map.values()) {
             result.add(value);
         }
         return result;
     }
 
-    public static Map<String, MyContact> getMapByListAllContacts(Context context) {
-        Map<String, MyContact> map = new HashMap<>();
-        Map<String, MyContact> nameMap = new HashMap<>();
+    public static Map<String, AppContact> getMapByListAllContacts(Context context) {
+        Map<String, AppContact> map = new HashMap<>();
+        Map<String, AppContact> nameMap = new HashMap<>();
         Cursor cursor = null;
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;//content://com.android.contacts/data/phones
         try {
             cursor = context.getContentResolver().query(uri, null, null, null, null);
             while (cursor.moveToNext()) {
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String idSting = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 String display_name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String has_phone_number = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
@@ -59,7 +61,7 @@ public class ContactTool {
 
 
                 System.out.println("########################" + System.currentTimeMillis() + "##############################");
-                System.out.println("id=" + id);
+                System.out.println("id=" + idSting);
                 System.out.println("display_name=" + display_name);
                 System.out.println("has_phone_number=" + has_phone_number);
                 System.out.println("phonetic_name=" + phonetic_name);
@@ -70,14 +72,15 @@ public class ContactTool {
                 phoneNumber = phoneNumber.replaceAll("-", "");
                 phoneNumber = phoneNumber.replaceAll(" ", "");
                 //todo 组装联系人数据
-                MyContact user = new MyContact();
+                AppContact user = new AppContact();
+                Integer id = Integer.valueOf(idSting);
                 user.setId(id);
                 user.setDisplayName(display_name);
                 user.setPhone(phoneNumber);
                 user.setHasPhoneNumber(has_phone_number);
 
                 nameMap.put(user.getDisplayName(), user);
-                map.put(id, user);
+                map.put("" + id, user);
             }
 
         } catch (Exception e) {
@@ -103,17 +106,17 @@ public class ContactTool {
      * @param context
      * @return
      */
-    public static MyContact getContactByDisplayName(String name, Context context) {
+    public static AppContact getContactByDisplayName(String name, Context context) {
         if (name == null) {
             return null;
         }
 
-        MyContact resultBean = null;
+        AppContact resultBean = null;
 
         //全部数据集
         Cursor cursor = null;
         //全部联系人 暂时存储起来
-        Map<String, MyContact> map = new HashMap<>();
+        Map<String, AppContact> map = new HashMap<>();
         Map<String, Object> temp = new HashMap<>();
 
         try {
@@ -126,7 +129,8 @@ public class ContactTool {
 
             while (cursor != null && cursor.moveToNext()) {
                 //获取联系人 id   key= _id
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String idSting = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                Integer id = Integer.valueOf(idSting);
                 String display_name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String phonetic_name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHONETIC_NAME));
                 String content_item_type = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.CONTENT_ITEM_TYPE));
@@ -137,7 +141,7 @@ public class ContactTool {
                 int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
 
                 System.out.println(columnIndex);
-                temp.put(id, id);
+                temp.put("" + id, id);
                 temp.put(display_name, display_name);
                 temp.put(count, count);
                 temp.put(content_item_type, content_item_type);
@@ -146,11 +150,11 @@ public class ContactTool {
                 temp.put(phonetic_name, phonetic_name);
                 temp.put(has_phone_number, has_phone_number);
                 //todo 组装数据
-                MyContact user = new MyContact();
+                AppContact user = new AppContact();
                 user.setId(id);
                 user.setDisplayName(display_name);
                 System.out.println("联系人 id=" + id + user);
-                map.put(id, user);
+                map.put("" + id, user);
             }
 
         } catch (Exception e) {
@@ -233,5 +237,45 @@ public class ContactTool {
         return numbers;
     }
 
+    /**
+     * 输出显示一个bean
+     */
+    public static AppContact getOne(Context context, AppContact user) {
+        String name = user.getDisplayName();
+        //查询并组装
+        AppContact localContact = null;
+        if (name != null && name.trim().length() != 0) {
+            localContact = ContactTool.getContactByDisplayName(name, context);
+            System.out.println("##############################################");
+            System.out.println("根据名称=" + name + ",查询出的电话号码是\n" + localContact);
+            System.out.println("##############################################");
 
+        }
+        //输出
+        return localContact;
+    }
+
+
+    /**
+     * update
+     *
+     * @param context
+     * @param user
+     * @return
+     */
+    public static AppContact update(Context context, AppContact user) {
+        //数据处理
+        int id = user.getId();
+        String phone = user.getPhone();
+
+        Uri uri = Uri.parse("content://com.android.contacts/data");//对data表的所有数据操作
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put("data1", phone);
+        resolver.update(uri, values, "mimetype=? and raw_contact_id=?", new String[]{"vnd.android.cursor.item/phone_v2", id + ""});
+
+        //成功标志
+        user.setState(1);
+        return user;
+    }
 }

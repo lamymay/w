@@ -16,7 +16,6 @@
 
         -->
 
-
     <RelativeLayout
             android:id="@+id/crudLayout"
             android:layout_width="wrap_content"
@@ -28,7 +27,16 @@
         <Button
                 android:id="@+id/saveBtn"
                 android:text="save"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                />
+
+        <Button
+                android:id="@+id/syncBtn"
+                android:text="sync"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
@@ -37,7 +45,7 @@
         <Button
                 android:id="@+id/deleteBtn"
                 android:text="del"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/saveBtn"
                 />
@@ -45,7 +53,7 @@
         <Button
                 android:id="@+id/updateBtn"
                 android:text="update"
-                android:layout_width="80dp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/deleteBtn"
                 />

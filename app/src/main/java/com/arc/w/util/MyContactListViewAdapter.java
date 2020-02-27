@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.arc.w.R;
-import com.arc.w.model.User;
+import com.arc.w.model.AppContact;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,16 +19,17 @@ import java.util.List;
  * @author 叶超
  * @since 2020/2/17 19:49
  */
-public class UserListViewAdapter extends BaseAdapter {
+public class MyContactListViewAdapter extends BaseAdapter {
 
-    private List<User> list = new LinkedList<>();
+    private List<AppContact> list = new LinkedList<>();
     private Context context;
-    //布局    private LinearLayout layout;
 
-    public UserListViewAdapter(List<User> list, Context context) {
-        this.list = list;
+    public MyContactListViewAdapter(List<AppContact> list, Context mainActivity) {
+                this.list = list;
         this.context = context;
     }
+    //布局    private LinearLayout layout;
+
 
     @Override
     public int getCount() {
@@ -74,8 +75,8 @@ public class UserListViewAdapter extends BaseAdapter {
         TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
         TextView numberTextView = (TextView) convertView.findViewById(R.id.number);
 
-        User user = list.get(position);
-        nameTextView.setText(user.getName());
+        AppContact user = list.get(position);
+        nameTextView.setText(user.getDisplayName());
         numberTextView.setText(user.getPhone());
 
         return convertView;
@@ -97,13 +98,13 @@ public class UserListViewAdapter extends BaseAdapter {
             TextView nameText = (TextView) convertView.findViewById(R.id.name);
             TextView phoneText = (TextView) convertView.findViewById(R.id.number);
 
-            nameText.setText(list.get(position).getName());
+            nameText.setText(list.get(position).getDisplayName());
             phoneText.setText(list.get(position).getPhone());
 
             convertView.setTag(new CacheViewHolder(nameText, phoneText));
         } else {
             cacheView = (CacheViewHolder) convertView.getTag();
-            cacheView.nameTv.setText(list.get(position).getName());
+            cacheView.nameTv.setText(list.get(position).getDisplayName());
             cacheView.phoneTv.setText(list.get(position).getPhone());
         }
         return convertView;
