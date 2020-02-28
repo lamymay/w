@@ -77,7 +77,7 @@ public class MyContactListViewAdapter extends BaseAdapter {
 
         AppContact user = list.get(position);
         nameTextView.setText(user.getDisplayName());
-        numberTextView.setText(user.getPhone());
+        numberTextView.setText(user.getCellphone());
 
         return convertView;
     }
@@ -99,13 +99,13 @@ public class MyContactListViewAdapter extends BaseAdapter {
             TextView phoneText = (TextView) convertView.findViewById(R.id.number);
 
             nameText.setText(list.get(position).getDisplayName());
-            phoneText.setText(list.get(position).getPhone());
+            phoneText.setText(list.get(position).getCellphone());
 
             convertView.setTag(new CacheViewHolder(nameText, phoneText));
         } else {
             cacheView = (CacheViewHolder) convertView.getTag();
             cacheView.nameTv.setText(list.get(position).getDisplayName());
-            cacheView.phoneTv.setText(list.get(position).getPhone());
+            cacheView.phoneTv.setText(list.get(position).getCellphone());
         }
         return convertView;
     }

@@ -74,9 +74,9 @@ public class ContactTool {
                 //todo 组装联系人数据
                 AppContact user = new AppContact();
                 Integer id = Integer.valueOf(idSting);
-                user.setId(id);
+                user.setContactId(id);
                 user.setDisplayName(display_name);
-                user.setPhone(phoneNumber);
+                user.setCellphone(phoneNumber);
                 user.setHasPhoneNumber(has_phone_number);
 
                 nameMap.put(user.getDisplayName(), user);
@@ -151,7 +151,7 @@ public class ContactTool {
                 temp.put(has_phone_number, has_phone_number);
                 //todo 组装数据
                 AppContact user = new AppContact();
-                user.setId(id);
+                user.setContactId(id);
                 user.setDisplayName(display_name);
                 System.out.println("联系人 id=" + id + user);
                 map.put("" + id, user);
@@ -266,7 +266,7 @@ public class ContactTool {
     public static AppContact update(Context context, AppContact user) {
         //数据处理
         int id = user.getId();
-        String phone = user.getPhone();
+        String phone = user.getCellphone();
 
         Uri uri = Uri.parse("content://com.android.contacts/data");//对data表的所有数据操作
         ContentResolver resolver = context.getContentResolver();

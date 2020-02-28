@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import com.alibaba.fastjson.JSON;
 import com.arc.w.model.AppContact;
 import com.arc.w.service.AppContactService;
 import com.arc.w.util.ContactTool;
@@ -176,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         //1、list
         List<AppContact> contacts = listAll3();
+//        String contacts = listAll3();
 
         //2、send data
         post(contacts);
@@ -219,22 +221,38 @@ public class MainActivity extends AppCompatActivity {
                     // 设置HTTP请求属性 - 传输内容的类型 - 简单表单
 //                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 //                    connection.setRequestProperty("Content-Type", "application/json");
+
                     //设置参数类型是json格式
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 
-                    //contacts
-//                    String params = JSON.toJSONString(contacts);
-                    // 设置HTTP请求属性 - 传输内容的长度
 
                     // 发送参数 ，采用字符流发送数据
-//                    PrintWriter pw = new PrintWriter(connection.getOutputStream());
-//
-//                    pw.write(params);
-//                    pw.flush();
-//                    pw.close();
+                    //                    PrintWriter pw = new PrintWriter(connection.getOutputStream());
+                    //                    pw.write(params);
+                    //                    pw.flush();
+                    //                    pw.close();
 
-                    String body = "[{},{}]";
-                    connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
+                    //                    String body = "[{},{}]";
+
+                    //contacts
+
+                    if (contacts != null) {
+                        for (AppContact contact : contacts) {
+                            System.out.println("contact="+contact);
+                        }
+                    }
+
+                    System.out.println("contacts="+contacts);
+
+                    String params = JSON.toJSONString(contacts);
+                    String body = params;
+                    System.out.println("#################################################################");
+                    System.out.println(params);
+                    System.out.println(body);
+                    System.out.println("#################################################################");
+
+                    // 设置HTTP请求属性 - 传输内容的长度
+//                    connection.setRequestProperty("Content-Length", String.valueOf(body.length()));
 
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
                     writer.write(body);
@@ -272,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
+        System.out.println("################## END ######################");
         System.out.println("################## END ######################");
 
     }
@@ -573,59 +592,59 @@ public class MainActivity extends AppCompatActivity {
      * @return
      */
     private List<AppContact> listAll3() {
-        Toast.makeText(MainActivity.this, "listAll2", Toast.LENGTH_SHORT).show();
-
-        Toast.makeText(MainActivity.this, "测试获取单条", Toast.LENGTH_SHORT).show();
-//        MyContact contact = ContactTool.getContactByDisplayName(name, this);
-        System.out.println("##############################################");
-
+        Toast.makeText(MainActivity.this, "listAll3", Toast.LENGTH_SHORT).show();
+        List<AppContact> rows = new ArrayList<>();
         //1、访问raw_contacts表 uri = content://com.android.contacts/contacts
         Uri uri = Uri.parse("content://com.android.contacts/contacts");
         ContentResolver resolver = MainActivity.this.getContentResolver();
 
         //2、获得_id属性
         Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Contacts.Data._ID}, null, null, null);
-        StringBuilder buf = new StringBuilder();
         while (cursor.moveToNext()) {
             //获得id并且在data中寻找数据
+            AppContact appContact = new AppContact();
+
             int id = cursor.getInt(0);
-            buf.append("id=" + id);
+            appContact.setContactId(id);
+
             uri = Uri.parse("content://com.android.contacts/contacts/" + id + "/data");
             //data1存储各个记录的总数据，MIMETYPE 存放记录的类型，如电话、email等
             Cursor cursor2 = resolver.query(uri, new String[]{ContactsContract.Contacts.Data.DATA1, ContactsContract.Contacts.Data.MIMETYPE}, null, null, null);
             while (cursor2.moveToNext()) {
                 String data = cursor2.getString(cursor2.getColumnIndex("data1"));
                 if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/name")) {       //如果是名字
-                    buf.append(",name=" + data);
+                    appContact.setDisplayName(data);
+
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/nickname")) {  //如果是昵称
-                    buf.append(",nickname=" + data);
+                    appContact.setNickname(data);
+
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/phone_v2")) {  //如果是电话
-                    buf.append(",phone=" + data);
+                    appContact.setCellphone(data);
+
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/email_v2")) {  //如果是email
-                    buf.append(",email=" + data);
+                    appContact.setEmail(data);
+
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/postal-address_v2")) { //如果是地址
-                    buf.append(",address=" + data);
+                    appContact.setPostalAddress(data);
+                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/organization")) {  //如果是组织
+                    appContact.setOrganization(data);
+
+                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/photo")) {  //如果是照片
+                    //appContact.setPhoto(data);
+                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/group_membership")) {  //如果是组织关系
+                    appContact.setGroupMembership(data);
+
+                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/im")) {  //如果是即时通讯IM
+                    appContact.setIm(data);
                 }
-//                else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/organization")) {  //如果是组织
-//                    buf.append(",organization=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/photo")) {  //如果是照片
-//                    buf.append(",photo=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/group_membership")) {  //如果是组织关系
-//                    buf.append(",group_membership=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/im")) {  //如果是即时通讯IM
-//                    buf.append(",im=" + data);
-//                }
             }
-            String str = buf.toString();
-            Log.i("Contacts", str);
+            //            Log.i("Contacts", str);
+            rows.add(appContact);
         }
-
-        System.out.println("##############################################");
-
         //输出显示
-        outputText.setText(buf.toString());
-
-        return null;
+        String string = JSON.toJSONString(rows);
+        outputText.setText(string);
+        return rows;
     }
 
     //-----
