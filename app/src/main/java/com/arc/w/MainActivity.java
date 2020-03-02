@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -20,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.alibaba.fastjson.JSON;
 import com.arc.w.model.AppContact;
+import com.arc.w.model.request.AppContactRequest;
 import com.arc.w.service.AppContactService;
 import com.arc.w.util.ContactTool;
 import com.arc.w.util.MyContactListViewAdapter;
@@ -29,14 +29,23 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author arc
  */
 public class MainActivity extends AppCompatActivity {
+
+    //输入框
+    private EditText input1;
+
+    private static final String TAG = "Contact_Test";
+
+    //permission
+//    private static final int PERMISSION_CONTACT = 1;
+
+    //数据输出展示的地方
+    private TextView outputText;
 
     /**
      * 程序入口
@@ -51,12 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 第二个测试-- 测试对联系人 CRUD
         setContentView(R.layout.activity_main);
-        try {
-            testCrudContactAndShow();
-        } catch (Exception e) {
-            e.printStackTrace();
-            //todo error
-        }
+        testCrudContactAndShow();
+
+        input1 = findViewById(R.id.input1);
+
     }
 
     //init layout  with method
@@ -76,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                String[] permissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE};
 //                addPermissByPermissionList(MainActivity.this, permissions, PERMISSION_CONTACT);
-                save();
+                ContactTool.saveOne(MainActivity.this, outputText);
             }
         });
 
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    delete();
+                    ContactTool.delete(MainActivity.this);
                 } catch (Exception e) {
                     e.printStackTrace();
                     //todo error
@@ -110,18 +117,15 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     //todo error
                 }
-
                 //MyContact
-
             }
-
         });
 
         //update
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                update();
+                ContactTool.update(MainActivity.this, null);
             }
         });
 
@@ -129,38 +133,30 @@ public class MainActivity extends AppCompatActivity {
         getButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getOne();
+                //     * 1、打开一个页面要求用户输入
+                //     * 2、参数点击搜素后查询数据
+                //     * 3、显示结果
+                //todo 打开一个页面要求用户输入
+                String name = input1.getText().toString();
+                System.out.println(name);
+                AppContact localContact = ContactTool.getContactByDisplayNameWithAllPhone(name, MainActivity.this);
+                //todo 显示结果
+                String toJSONString = JSON.toJSONString(localContact);
+                Toast.makeText(MainActivity.this, "根据参数name\n" + name + "查询到的结果=" + toJSONString, Toast.LENGTH_SHORT).show();
+                outputText.setText(toJSONString);
+                System.out.println(localContact);
             }
-
         });
 
         //listAll
         listAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listAll2();
+                listAll3();
             }
-
-
         });
-
     }
 
-    /**
-     * 更新数据
-     */
-    private void update() {
-        // 1、打开一个页面要求用户输入
-        // 2、输入参数后，根据变化的数据来更新
-        // 3、显示结果
-
-        AppContact contact = new AppContact();
-
-        AppContact localContact = ContactTool.update(MainActivity.this, contact);
-
-        Toast.makeText(MainActivity.this, "update" + localContact, Toast.LENGTH_SHORT).show();
-
-    }
 
     //------------------------------
 
@@ -177,18 +173,31 @@ public class MainActivity extends AppCompatActivity {
 
         //1、list
         List<AppContact> contacts = listAll3();
-//        String contacts = listAll3();
 
+        //                UNION_SET(1, "取并集"),
+        //                ONLY_ACCEPT_SERVER(2, "仅取服务器的数据"),
+        //                ONLY_ACCEPT_CLIENT(3, "仅取客户端数据"),
+        String inputType = input1.getText().toString();
+        Integer synStrategyType = 3;
+        if (inputType != null) {
+            synStrategyType = Integer.valueOf(inputType.trim());
+        }
+
+        System.out.println("String inputType=" + inputType);
+        System.out.println("Integer synStrategyType=" + synStrategyType);
+        System.out.println();
+
+        AppContactRequest requestData = new AppContactRequest("18674192462", contacts, synStrategyType);
         //2、send data
-        post(contacts);
+        post(requestData);
 
     }
 
-
     public final static String uriForPostListAll = "http://192.168.2.195:8001/zero/contacts/sync";
 
+    private void post(final AppContactRequest requestData) {
+        Map<String, Object> resultMap = new HashMap<>();
 
-    private void post(final List<AppContact> contacts) {
         System.out.println("########################################");
         //开启线程，发送请求
         new Thread(new Runnable() {
@@ -236,15 +245,8 @@ public class MainActivity extends AppCompatActivity {
 
                     //contacts
 
-                    if (contacts != null) {
-                        for (AppContact contact : contacts) {
-                            System.out.println("contact="+contact);
-                        }
-                    }
 
-                    System.out.println("contacts="+contacts);
-
-                    String params = JSON.toJSONString(contacts);
+                    String params = JSON.toJSONString(requestData);
                     String body = params;
                     System.out.println("#################################################################");
                     System.out.println(params);
@@ -268,7 +270,9 @@ public class MainActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                     }
-                    show(result.toString());
+                    String resultString = result.toString();
+                    show(resultString);
+                    resultMap.put("response", resultString);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (ProtocolException e) {
@@ -290,9 +294,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
+        System.out.println(resultMap.size());
+        System.out.println(resultMap.get("response"));
         System.out.println("################## END ######################");
         System.out.println("################## END ######################");
-
     }
 
     /**
@@ -302,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void show(final String result) {
         //todo 返回数据的处理
-
         System.out.println(result);
 
         //因为在 Android 中不允许在子线程中执行 UI 操作，所以我们通过 runOnUiThread 方法，切换为主线程，然后再更新 UI 元素
@@ -316,275 +320,6 @@ public class MainActivity extends AppCompatActivity {
 
     //========================== 第2个测试 START================================
 
-    /**
-     * 1、打开一个页面要求用户输入
-     * 2、参数点击搜素后查询数据
-     * 3、显示结果
-     */
-    private void getOne() {
-        //todo 打开一个页面要求用户输入
-        AppContact contact = new AppContact();
-        AppContact localContact = ContactTool.getOne(MainActivity.this, contact);
-        //todo 显示结果
-        Toast.makeText(MainActivity.this, "参数\n" + contact + " 结果=" + localContact, Toast.LENGTH_SHORT).show();
-        outputText.setText(localContact.toString());
-        System.out.println(localContact);
-    }
-
-    Context context = MainActivity.this;
-
-    /**
-     * Delete
-     * <p>
-     * 核心思想：
-     * (1)先在raw_contacts表根据姓名(此处的姓名为name记录的data2的数据而不是data1的数据)查出id；
-     * (2)在data表中只要raw_contact_id匹配的都删除；
-     * 复制代码
-     */
-    private void delete() throws Exception {
-        System.out.println("##################### DELETE START #########################");
-        long t1 = System.currentTimeMillis();
-        Toast.makeText(MainActivity.this, "delete", Toast.LENGTH_SHORT).show();
-        String name = "123";
-        //根据姓名求id
-        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
-        ContentResolver resolver = context.getContentResolver();
-        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Data._ID}, "display_name=?", new String[]{name}, null);
-        if (cursor.moveToFirst()) {
-            int id = cursor.getInt(0);
-            //根据id删除data中的相应数据
-            resolver.delete(uri, "display_name=?", new String[]{name});
-            uri = Uri.parse("content://com.android.contacts/data");
-            resolver.delete(uri, "raw_contact_id=?", new String[]{id + ""});
-        }
-        System.out.println("##################### DELETE END " + (System.currentTimeMillis() - t1) + "ms #########################");
-
-    }
-
-    /**
-     * save
-     */
-    private void save() {
-        System.out.println("##################### SAVE START #########################");
-        long t1 = System.currentTimeMillis();
-        try {
-
-            saveOne();
-            //saveBatch();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("##################### SAVE END " + (System.currentTimeMillis() - t1) + "ms #########################");
-    }
-
-    /**
-     * 测试
-     * insert
-     * 注意：对某个联系人插入姓名、电话等记录时必须要插入Data.MIMETYPE（或者是"mimetype"）属性,而不是插入"mimetype_id"!
-     * 比如：values.put(Data.MIMETYPE,"vnd.android.cursor.item/phone_v2")
-     */
-    private void saveOne() {
-        //插入raw_contacts表，并获取_id属性
-        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues values = new ContentValues();
-        long contact_id = ContentUris.parseId(resolver.insert(uri, values));
-        //插入data表
-        uri = Uri.parse("content://com.android.contacts/data");
-        //add name
-        values.put("raw_contact_id", contact_id);
-        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/name");
-        values.put("data2", "zdong");
-        values.put("data1", "xzdong");
-        resolver.insert(uri, values);
-        values.clear();
-        //add phone
-        values.put("raw_contact_id", contact_id);
-        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/phone_v2");
-        values.put("data2", "2");   //手机
-        values.put("data1", "87654321");
-        resolver.insert(uri, values);
-        values.clear();
-        //add email
-        values.put("raw_contact_id", contact_id);
-        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/email_v2");
-        values.put("data2", "2");   //单位
-        values.put("data1", "xzdong@xzdong.com");
-        resolver.insert(uri, values);
-
-        //方便测试这里使用一个文本框做输出显示
-        Toast.makeText(MainActivity.this, "saveOne", Toast.LENGTH_SHORT).show();
-        outputText.setText("insert");
-        System.out.println("########################saveOne######################");
-    }
-
-    /**
-     * 批量添加数据
-     * 核心代码：
-     * <p>
-     * (1)ContentProviderOperation operation = ContentProviderOperation.newInsert(uri).withValue("key","value").build();
-     * <p>
-     * (2)resolver.applyBatch("authorities",operations);//批量提交
-     */
-    private void saveBatch(List<AppContact> contacts) throws Exception {
-        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
-        ContentResolver resolver = context.getContentResolver();
-
-        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-        // 向raw_contact表添加一条记录
-        //此处.withValue("account_name", null)一定要加，不然会抛NullPointerException
-        ContentProviderOperation operation1 = ContentProviderOperation.newInsert(uri).withValue("account_name", null).build();
-
-        operations.add(operation1);
-
-        // 向data添加数据
-        uri = Uri.parse("content://com.android.contacts/data");
-        //添加姓名
-        ContentProviderOperation operation2 = ContentProviderOperation.newInsert(uri).withValueBackReference("raw_contact_id", 0)
-                //withValueBackReference的第二个参数表示引用operations[0]的操作的返回id作为此值
-                .withValue("mimetype", "vnd.android.cursor.item/name")
-                .withValue("data2", "xzdong").build();
-        operations.add(operation2);
-
-
-        //添加手机数据
-        ContentProviderOperation operation3 = ContentProviderOperation
-                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
-                .withValue("mimetype", "vnd.android.cursor.item/phone_v2")
-                .withValue("data2", "2").withValue("data1", "0000000").build();
-        operations.add(operation3);
-
-        //集合数据提交
-        resolver.applyBatch("com.android.contacts", operations);
-
-
-        //方便测试这里使用一个文本框做输出显示
-        Toast.makeText(MainActivity.this, "saveBatch", Toast.LENGTH_SHORT).show();
-        outputText.setText("saveBatch");
-        System.out.println("##################### saveBatch #########################");
-    }
-
-    private void saveBatchForTest() throws Exception {
-        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
-        ContentResolver resolver = context.getContentResolver();
-        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-        // 向raw_contact表添加一条记录
-        //此处.withValue("account_name", null)一定要加，不然会抛NullPointerException
-        ContentProviderOperation operation1 = ContentProviderOperation
-                .newInsert(uri).withValue("account_name", null).build();
-        operations.add(operation1);
-        // 向data添加数据
-        uri = Uri.parse("content://com.android.contacts/data");
-        //添加姓名
-        ContentProviderOperation operation2 = ContentProviderOperation
-                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
-                //withValueBackReference的第二个参数表示引用operations[0]的操作的返回id作为此值
-                .withValue("mimetype", "vnd.android.cursor.item/name")
-                .withValue("data2", "xzdong").build();
-        operations.add(operation2);
-        //添加手机数据
-        ContentProviderOperation operation3 = ContentProviderOperation
-                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
-                .withValue("mimetype", "vnd.android.cursor.item/phone_v2")
-                .withValue("data2", "2").withValue("data1", "0000000").build();
-        operations.add(operation3);
-        resolver.applyBatch("com.android.contacts", operations);
-
-        //方便测试这里使用一个文本框做输出显示
-        Toast.makeText(MainActivity.this, "saveBatch", Toast.LENGTH_SHORT).show();
-        outputText.setText("saveBatch");
-        System.out.println("##################### saveBatch #########################");
-    }
-
-    /**
-     * 根据电话号码查询姓名
-     *
-     * @param phoneNumber
-     * @return
-     */
-    private String getContactNameByPhoneNumber(final String phoneNumber) {
-        //根据电话号码查询姓名（在一个电话打过来时，如果此电话在通讯录中，则显示姓名）
-        //uri=  content://com.android.contacts/data/phones/filter/#
-        final Uri uri = Uri.parse("content://com.android.contacts/data/phones/filter/" + phoneNumber);
-        ContentResolver resolver = MainActivity.this.getContentResolver();
-        //从raw_contact表中返回display_name
-        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
-        StringBuffer buffer = new StringBuffer("");
-        if (cursor.moveToFirst()) {
-            buffer.append(cursor.getString(0));
-            //todo Log.i("Contacts", "name=" + cursor.getString(0));
-        }
-
-        //输出显示
-        Toast.makeText(MainActivity.this, "根据电话号码查询姓名", Toast.LENGTH_SHORT).show();
-        outputText.setText(buffer.toString());
-        return buffer.toString();
-    }
-
-
-    @Deprecated
-    private void listAll() {
-        Toast.makeText(MainActivity.this, "listAll", Toast.LENGTH_SHORT).show();
-        String[] permissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE};
-        addPermissionsByPermissionList(MainActivity.this, permissions, PERMISSION_CONTACT);
-    }
-
-
-    private void listAll2() {
-        Toast.makeText(MainActivity.this, "listAll2", Toast.LENGTH_SHORT).show();
-
-        Toast.makeText(MainActivity.this, "测试获取单条", Toast.LENGTH_SHORT).show();
-//        MyContact contact = ContactTool.getContactByDisplayName(name, this);
-        System.out.println("##############################################");
-
-        //1、访问raw_contacts表 uri = content://com.android.contacts/contacts
-        Uri uri = Uri.parse("content://com.android.contacts/contacts");
-        ContentResolver resolver = MainActivity.this.getContentResolver();
-
-        //2、获得_id属性
-        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Contacts.Data._ID}, null, null, null);
-        StringBuilder buf = new StringBuilder();
-        while (cursor.moveToNext()) {
-            //获得id并且在data中寻找数据
-            int id = cursor.getInt(0);
-            buf.append("id=" + id);
-            uri = Uri.parse("content://com.android.contacts/contacts/" + id + "/data");
-            //data1存储各个记录的总数据，MIMETYPE 存放记录的类型，如电话、email等
-            Cursor cursor2 = resolver.query(uri, new String[]{ContactsContract.Contacts.Data.DATA1, ContactsContract.Contacts.Data.MIMETYPE}, null, null, null);
-            while (cursor2.moveToNext()) {
-                String data = cursor2.getString(cursor2.getColumnIndex("data1"));
-                if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/name")) {       //如果是名字
-                    buf.append(",name=" + data);
-                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/nickname")) {  //如果是昵称
-                    buf.append(",nickname=" + data);
-                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/phone_v2")) {  //如果是电话
-                    buf.append(",phone=" + data);
-                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/email_v2")) {  //如果是email
-                    buf.append(",email=" + data);
-                } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/postal-address_v2")) { //如果是地址
-                    buf.append(",address=" + data);
-                }
-//                else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/organization")) {  //如果是组织
-//                    buf.append(",organization=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/photo")) {  //如果是照片
-//                    buf.append(",photo=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/group_membership")) {  //如果是组织关系
-//                    buf.append(",group_membership=" + data);
-//                }else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/im")) {  //如果是即时通讯IM
-//                    buf.append(",im=" + data);
-//                }
-            }
-            String str = buf.toString();
-            Log.i("Contacts", str);
-        }
-
-        System.out.println("##############################################");
-
-        //输出显示
-        outputText.setText(buf.toString());
-
-    }
-
 
     /**
      * 请转换为此项
@@ -595,51 +330,71 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "listAll3", Toast.LENGTH_SHORT).show();
         List<AppContact> rows = new ArrayList<>();
         //1、访问raw_contacts表 uri = content://com.android.contacts/contacts
-        Uri uri = Uri.parse("content://com.android.contacts/contacts");
+//        Uri uri = Uri.parse("content://com.android.contacts/contacts");
+        //Uri uri = ContactsContract.Contacts.CONTENT_URI;
+
         ContentResolver resolver = MainActivity.this.getContentResolver();
 
         //2、获得_id属性
-        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Contacts.Data._ID}, null, null, null);
+        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI,
+                new String[]{ContactsContract.Contacts.Data._ID},
+                null,
+                null,
+                null);
         while (cursor.moveToNext()) {
+            //========================================================
+
             //获得id并且在data中寻找数据
-            AppContact appContact = new AppContact();
+            int contactId = cursor.getInt(0);
+            AppContact contact = new AppContact();
+            List<String> phoneNumbers = new ArrayList<>();
 
-            int id = cursor.getInt(0);
-            appContact.setContactId(id);
+            contact.setContactId(contactId);
 
-            uri = Uri.parse("content://com.android.contacts/contacts/" + id + "/data");
+//            int phoneCount = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
             //data1存储各个记录的总数据，MIMETYPE 存放记录的类型，如电话、email等
-            Cursor cursor2 = resolver.query(uri, new String[]{ContactsContract.Contacts.Data.DATA1, ContactsContract.Contacts.Data.MIMETYPE}, null, null, null);
+            Cursor cursor2 = resolver.query(
+                    Uri.parse("content://com.android.contacts/contacts/" + contactId + "/data"),
+                    new String[]{ContactsContract.Contacts.Data.DATA1, ContactsContract.Contacts.Data.MIMETYPE},
+                    null,
+                    null,
+                    null);
             while (cursor2.moveToNext()) {
                 String data = cursor2.getString(cursor2.getColumnIndex("data1"));
                 if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/name")) {       //如果是名字
-                    appContact.setDisplayName(data);
+                    contact.setDisplayName(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/nickname")) {  //如果是昵称
-                    appContact.setNickname(data);
+                    contact.setNickname(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/phone_v2")) {  //如果是电话
-                    appContact.setCellphone(data);
+                    data = data.replaceAll("//s", "");
+                    data = data.replaceAll("-", "");
+
+                    phoneNumbers.add(data);
+                    contact.setCellphone(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/email_v2")) {  //如果是email
-                    appContact.setEmail(data);
+                    contact.setEmail(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/postal-address_v2")) { //如果是地址
-                    appContact.setPostalAddress(data);
+                    contact.setPostalAddress(data);
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/organization")) {  //如果是组织
-                    appContact.setOrganization(data);
+                    contact.setOrganization(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/photo")) {  //如果是照片
                     //appContact.setPhoto(data);
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/group_membership")) {  //如果是组织关系
-                    appContact.setGroupMembership(data);
+                    contact.setGroupMembership(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/im")) {  //如果是即时通讯IM
-                    appContact.setIm(data);
+                    contact.setIm(data);
                 }
+                contact.setPhoneNumbers(phoneNumbers);
             }
             //            Log.i("Contacts", str);
-            rows.add(appContact);
+            rows.add(contact);
         }
         //输出显示
         String string = JSON.toJSONString(rows);
@@ -647,13 +402,6 @@ public class MainActivity extends AppCompatActivity {
         return rows;
     }
 
-    //-----
-    private static final String TAG = "Contact_Test";
-    //permission
-    private static final int PERMISSION_CONTACT = 1;
-
-    //数据输出展示的地方
-    private TextView outputText;
 
 //    private void listAll() {
 //        onClick = findViewById(R.id.button);
@@ -673,39 +421,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 动态权限
-     */
-    public void addPermissionsByPermissionList(Activity activity, String[] permissions, int request) {
-        //ro.build.version.sdk  == 26?  [Build.VERSION_CODES.M即26]
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {   //Android 6.0开始的动态权限，这里进行版本判断
-            List<String> mPermissionList = new LinkedList<>();
-            for (int i = 0; i < permissions.length; i++) {
-                if (ContextCompat.checkSelfPermission(activity, permissions[i])
-                        != PackageManager.PERMISSION_GRANTED) {
-                    mPermissionList.add(permissions[i]);
-                }
-            }
-
-            //非初次进入App且已授权
-            if (mPermissionList.isEmpty()) {
-                List<AppContact> contacts = ContactTool.listAllContacts(MainActivity.this);
-                showContacts(contacts.toString());
-                Toast.makeText(this, "已授权", Toast.LENGTH_SHORT).show();
-            } else {
-                //请求权限方法
-                String[] permissionsNew = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
-                ActivityCompat.requestPermissions(activity, permissionsNew, request); //这个触发下面onRequestPermissionsResult这个回调
-            }
-        }
-    }
-
-    /**
      * requestPermissions的回调
      * 一个或多个权限请求结果回调
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean hasAllGranted = true;
         //判断是否拒绝  拒绝后要怎么处理 以及取消再次提示的处理
@@ -748,6 +468,60 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    /**
+     * 动态权限
+     */
+    public void addPermissByPermissionList(Activity activity, String[] permissions, int request) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {   //Android 6.0开始的动态权限，这里进行版本判断
+            ArrayList<String> mPermissionList = new ArrayList<>();
+            for (int i = 0; i < permissions.length; i++) {
+                if (ContextCompat.checkSelfPermission(activity, permissions[i])
+                        != PackageManager.PERMISSION_GRANTED) {
+                    mPermissionList.add(permissions[i]);
+                }
+            }
+            if (mPermissionList.isEmpty()) {  //非初次进入App且已授权
+                //   showContacts();
+                Toast.makeText(this, "已授权", Toast.LENGTH_SHORT).show();
+            } else {
+                //请求权限方法
+                String[] permissionsNew = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
+                ActivityCompat.requestPermissions(activity, permissionsNew, request); //这个触发下面onRequestPermissionsResult这个回调
+            }
+        }
+    }
+
+    //动态权限
+    private void listAll() {
+        Toast.makeText(MainActivity.this, "listAll", Toast.LENGTH_SHORT).show();
+        String[] permissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE};
+
+        //addPermissionsByPermissionList(MainActivity.this, permissions, PERMISSION_CONTACT);
+        //动态权限     public void addPermissionsByPermissionList(Activity activity, String[] permissions, int request) {
+        //ro.build.version.sdk  == 26?  [Build.VERSION_CODES.M即26]
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {   //Android 6.0开始的动态权限，这里进行版本判断
+            List<String> mPermissionList = new LinkedList<>();
+            for (int i = 0; i < permissions.length; i++) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this, permissions[i])
+                        != PackageManager.PERMISSION_GRANTED) {
+                    mPermissionList.add(permissions[i]);
+                }
+            }
+
+            //非初次进入App且已授权
+            if (mPermissionList.isEmpty()) {
+                List<AppContact> contacts = ContactTool.listAllContacts(MainActivity.this);
+                showContacts(contacts.toString());
+                Toast.makeText(this, "已授权", Toast.LENGTH_SHORT).show();
+            } else {
+                //请求权限方法
+                String[] permissionsNew = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
+                ActivityCompat.requestPermissions(MainActivity.this, permissionsNew, 1); //这个触发下面onRequestPermissionsResult这个回调
+            }
+        }
+    }
+
     //========================== 第2个测试 END================================
 
 

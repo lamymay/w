@@ -1,17 +1,22 @@
 package com.arc.w.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import com.alibaba.fastjson.JSON;
+import com.arc.w.model.request.AppContactRequest;
+
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 叶超
  * @since 2020/2/27 21:23
  */
 public class HttpUtil {
+
     /**
      * POST方法提交HTTP请求，返回请求的结果
      *
@@ -20,7 +25,7 @@ public class HttpUtil {
      * @return 请求结果
      * @throws IOException
      */
-    public static String post(String url, String params) throws IOException {
+    public static String postFun1(String url, String params) throws IOException {
 
         StringBuffer result = new StringBuffer();
 
@@ -89,7 +94,7 @@ public class HttpUtil {
      * @return 请求的结果
      * @throws IOException
      */
-    public static String get(String url) throws IOException {
+    public static String getFun1(String url) throws IOException {
 
         StringBuffer result = new StringBuffer();
         // 创建URL对象

@@ -1,12 +1,15 @@
 package com.arc.w.util;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.arc.w.MainActivity;
 import com.arc.w.model.AppContact;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +31,11 @@ public class ContactTool {
      * @return
      */
     public static List<AppContact> listAllContacts(Context context) {
-        Map<String, AppContact> map = getMapByListAllContacts(context);
+        Map<String, AppContact> map = listAllMapContacts(context);
         if (map == null) {
             return null;
         }
+
         List<AppContact> result = new ArrayList<>(map.size());
         for (AppContact value : map.values()) {
             result.add(value);
@@ -39,7 +43,8 @@ public class ContactTool {
         return result;
     }
 
-    public static Map<String, AppContact> getMapByListAllContacts(Context context) {
+
+    public static Map<String, AppContact> listAllMapContacts(Context context) {
         Map<String, AppContact> map = new HashMap<>();
         Map<String, AppContact> nameMap = new HashMap<>();
         Cursor cursor = null;
@@ -102,16 +107,17 @@ public class ContactTool {
      * 包含：
      * 手机号
      *
-     * @param name
+     * @param displayName
      * @param context
      * @return
      */
-    public static AppContact getContactByDisplayName(String name, Context context) {
-        if (name == null) {
+    public static AppContact getContactByDisplayName(String displayName, Context context) {
+        if (displayName == null) {
             return null;
         }
 
         AppContact resultBean = null;
+        //1 get one by name//        if (name != null && name.trim().length() != 0) {
 
         //全部数据集
         Cursor cursor = null;
@@ -166,9 +172,32 @@ public class ContactTool {
                 cursor = null;
             }
         }
+        System.out.println("根据名称displayName=" + displayName + ",查询出的电话号码是\n" + resultBean);
         return resultBean;
     }
 
+    /**
+     * 根据电话号码查询姓名
+     *
+     * @param phoneNumber
+     * @return
+     */
+    private String getContactNameByPhoneNumber(final String phoneNumber, Context context) {
+        //根据电话号码查询姓名（在一个电话打过来时，如果此电话在通讯录中，则显示姓名）
+        //uri=  content://com.android.contacts/data/phones/filter/#
+        final Uri uri = Uri.parse("content://com.android.contacts/data/phones/filter/" + phoneNumber);
+        ContentResolver resolver = context.getContentResolver();
+        //从raw_contact表中返回display_name
+        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
+        StringBuffer buffer = new StringBuffer("");
+        if (cursor.moveToFirst()) {
+            buffer.append(cursor.getString(0));
+            //todo Log.i("Contacts", "name=" + cursor.getString(0));
+        }
+        //输出显示
+        Toast.makeText(context, "根据电话号码查询姓名", Toast.LENGTH_SHORT).show();
+        return buffer.toString();
+    }
 
     /**
      * 查询指定联系人的所有号码
@@ -177,11 +206,13 @@ public class ContactTool {
      * @param context
      * @return
      */
-    public static List<String> queryByNumber(String name, Context context) {
+    public static AppContact getContactByDisplayNameWithAllPhone(String name, Context context) {
         if (name == null) {
             return null;
         }
-        List<String> numbers = new ArrayList<>();
+
+        AppContact appContact2 = new AppContact();
+        List<String> phoneNumbers = new ArrayList<>();
         Cursor cursor = null;
         Cursor phoneCursor = null;
         try {
@@ -194,6 +225,7 @@ public class ContactTool {
                 String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 //获取联系人的名字
                 String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+
                 if (name.equalsIgnoreCase(contactName)) {
                     // 查看联系人有多少个号码，如果没有号码，返回0
                     int phoneCount = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
@@ -201,14 +233,12 @@ public class ContactTool {
                         // 获得联系人的电话号码列表
                         Uri contactDataUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
                         String sqlSelectPhoneCursor = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + contactId;
-                        System.out.println("获得联系人的电话号码列表URI=" + contactDataUri);
-                        System.out.println("获得联系人的电话号码列表SQL=" + sqlSelectPhoneCursor);
                         phoneCursor = context.getContentResolver().query(contactDataUri, null, sqlSelectPhoneCursor, null, null);
                         if (phoneCursor.moveToFirst()) {
                             do {
                                 //遍历所有的联系人下面所有的电话号码
                                 String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                                numbers.add(phoneNumber);
+                                phoneNumbers.add(phoneNumber);
                             } while (phoneCursor.moveToNext());
                         }
                     }
@@ -216,7 +246,7 @@ public class ContactTool {
                     //                Cursor phone = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
                     //                if (phone.moveToNext()) {
                     //                    String phoneNumber = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                    //                    numbers.add(phoneNumber);
+                    //                    phoneNumbers.add(phoneNumber);
                     //                }
                 }
             }
@@ -234,25 +264,8 @@ public class ContactTool {
                 phoneCursor = null;
             }
         }
-        return numbers;
-    }
-
-    /**
-     * 输出显示一个bean
-     */
-    public static AppContact getOne(Context context, AppContact user) {
-        String name = user.getDisplayName();
-        //查询并组装
-        AppContact localContact = null;
-        if (name != null && name.trim().length() != 0) {
-            localContact = ContactTool.getContactByDisplayName(name, context);
-            System.out.println("##############################################");
-            System.out.println("根据名称=" + name + ",查询出的电话号码是\n" + localContact);
-            System.out.println("##############################################");
-
-        }
-        //输出
-        return localContact;
+        appContact2.setPhoneNumbers(phoneNumbers);
+        return appContact2;
     }
 
 
@@ -264,7 +277,16 @@ public class ContactTool {
      * @return
      */
     public static AppContact update(Context context, AppContact user) {
+        // 1、打开一个页面要求用户输入
+        // 2、输入参数后，根据变化的数据来更新
+        // 3、显示结果
+
+
         //数据处理
+        if (user == null) {
+            System.out.println(" ERROR throw new RuntimeException(\"null update\");");
+            throw new RuntimeException("null update");
+        }
         int id = user.getId();
         String phone = user.getCellphone();
 
@@ -278,4 +300,213 @@ public class ContactTool {
         user.setState(1);
         return user;
     }
+
+    @Deprecated
+    public static ArrayList<AppContact> getAllContacts(Context context) {
+        ArrayList<AppContact> contacts = new ArrayList<AppContact>();
+
+        Cursor cursor = context.getContentResolver().query(
+                ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        while (cursor.moveToNext()) {
+            //新建一个联系人实例
+            AppContact temp = new AppContact();
+            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            //获取联系人姓名
+            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+            temp.setName(name);
+
+            //获取联系人电话号码
+            Cursor phoneCursor = context.getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + contactId,
+                    null,
+                    null);
+            while (phoneCursor.moveToNext()) {
+                String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                phone = phone.replace("-", "");
+                phone = phone.replace(" ", "");
+                temp.setCellphone(phone);
+            }
+
+            //获取联系人备注信息
+            Cursor noteCursor = context.getContentResolver().query(
+                    ContactsContract.Data.CONTENT_URI,
+                    new String[]{ContactsContract.Data._ID, ContactsContract.CommonDataKinds.Nickname.NAME},
+                    ContactsContract.Data.CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE + "'",
+                    new String[]{contactId},
+                    null);
+            if (noteCursor.moveToFirst()) {
+                do {
+                    String note = noteCursor.getString(noteCursor
+                            .getColumnIndex(ContactsContract.CommonDataKinds.Nickname.NAME));
+                    temp.note = note;
+                    Log.i("note:", note);
+                } while (noteCursor.moveToNext());
+            }
+            contacts.add(temp);
+            //记得要把cursor给close掉
+            phoneCursor.close();
+            noteCursor.close();
+        }
+        cursor.close();
+        return contacts;
+    }
+
+
+    /**
+     * 测试
+     * insert
+     * 注意：对某个联系人插入姓名、电话等记录时必须要插入Data.MIMETYPE（或者是"mimetype"）属性,而不是插入"mimetype_id"!
+     * 比如：values.put(Data.MIMETYPE,"vnd.android.cursor.item/phone_v2")
+     */
+    public static void saveOne(Context context, TextView outputText) {
+        //插入raw_contacts表，并获取_id属性
+        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        long contact_id = ContentUris.parseId(resolver.insert(uri, values));
+        //插入data表
+        uri = Uri.parse("content://com.android.contacts/data");
+        //add name
+        values.put("raw_contact_id", contact_id);
+        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/name");
+        values.put("data2", "zdong");
+        values.put("data1", "xzdong");
+        resolver.insert(uri, values);
+        values.clear();
+        //add phone
+        values.put("raw_contact_id", contact_id);
+        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/phone_v2");
+        values.put("data2", "2");   //手机
+        values.put("data1", "87654321");
+        resolver.insert(uri, values);
+        values.clear();
+        //add email
+        values.put("raw_contact_id", contact_id);
+        values.put(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/email_v2");
+        values.put("data2", "2");   //单位
+        values.put("data1", "xzdong@xzdong.com");
+        resolver.insert(uri, values);
+
+        //方便测试这里使用一个文本框做输出显示
+        Toast.makeText(context, "saveOne", Toast.LENGTH_SHORT).show();
+        outputText.setText("insert");
+        System.out.println("########################saveOne######################");
+    }
+
+    /**
+     * 测试批量保存by写死数据
+     *
+     * @param context
+     * @param outputText
+     * @throws Exception
+     */
+    public static void saveBatchForTest(Context context, TextView outputText) throws Exception {
+        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+        ContentResolver resolver = context.getContentResolver();
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        // 向raw_contact表添加一条记录
+        //此处.withValue("account_name", null)一定要加，不然会抛NullPointerException
+        ContentProviderOperation operation1 = ContentProviderOperation
+                .newInsert(uri).withValue("account_name", null).build();
+        operations.add(operation1);
+        // 向data添加数据
+        uri = Uri.parse("content://com.android.contacts/data");
+        //添加姓名
+        ContentProviderOperation operation2 = ContentProviderOperation
+                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
+                //withValueBackReference的第二个参数表示引用operations[0]的操作的返回id作为此值
+                .withValue("mimetype", "vnd.android.cursor.item/name")
+                .withValue("data2", "xzdong").build();
+        operations.add(operation2);
+        //添加手机数据
+        ContentProviderOperation operation3 = ContentProviderOperation
+                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
+                .withValue("mimetype", "vnd.android.cursor.item/phone_v2")
+                .withValue("data2", "2").withValue("data1", "0000000").build();
+        operations.add(operation3);
+        resolver.applyBatch("com.android.contacts", operations);
+
+        //方便测试这里使用一个文本框做输出显示
+        Toast.makeText(context, "saveBatch", Toast.LENGTH_SHORT).show();
+        outputText.setText("saveBatch");
+        System.out.println("##################### saveBatch #########################");
+    }
+
+
+    /**
+     * 批量添加数据
+     * 核心代码：
+     * <p>
+     * (1)ContentProviderOperation operation = ContentProviderOperation.newInsert(uri).withValue("key","value").build();
+     * <p>
+     * (2)resolver.applyBatch("authorities",operations);//批量提交
+     */
+    public static void saveBatch(Context context, TextView outputText, List<AppContact> contacts) throws Exception {
+        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+        ContentResolver resolver = context.getContentResolver();
+
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        // 向raw_contact表添加一条记录
+        //此处.withValue("account_name", null)一定要加，不然会抛NullPointerException
+        ContentProviderOperation operation1 = ContentProviderOperation.newInsert(uri).withValue("account_name", null).build();
+
+        operations.add(operation1);
+
+        // 向data添加数据
+        uri = Uri.parse("content://com.android.contacts/data");
+        //添加姓名
+        ContentProviderOperation operation2 = ContentProviderOperation.newInsert(uri).withValueBackReference("raw_contact_id", 0)
+                //withValueBackReference的第二个参数表示引用operations[0]的操作的返回id作为此值
+                .withValue("mimetype", "vnd.android.cursor.item/name")
+                .withValue("data2", "xzdong").build();
+        operations.add(operation2);
+
+
+        //添加手机数据
+        ContentProviderOperation operation3 = ContentProviderOperation
+                .newInsert(uri).withValueBackReference("raw_contact_id", 0)
+                .withValue("mimetype", "vnd.android.cursor.item/phone_v2")
+                .withValue("data2", "2").withValue("data1", "0000000").build();
+        operations.add(operation3);
+
+        //集合数据提交
+        resolver.applyBatch("com.android.contacts", operations);
+
+
+        //方便测试这里使用一个文本框做输出显示
+        Toast.makeText(context, "saveBatch", Toast.LENGTH_SHORT).show();
+        outputText.setText("saveBatch");
+        System.out.println("##################### saveBatch #########################");
+    }
+
+    /**
+     * delete
+     * 核心思想：
+     * (1)先在raw_contacts表根据姓名(此处的姓名为name记录的data2的数据而不是data1的数据)查出id；
+     * (2)在data表中只要raw_contact_id匹配的都删除；
+     * 复制代码
+     */
+    public static void delete(Context context) throws Exception {
+        System.out.println("##################### DELETE START #########################");
+        long t1 = System.currentTimeMillis();
+        Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show();
+        String name = "123";
+        //根据姓名求id
+        Uri uri = Uri.parse("content://com.android.contacts/raw_contacts");
+        ContentResolver resolver = context.getContentResolver();
+        Cursor cursor = resolver.query(uri, new String[]{ContactsContract.Data._ID}, "display_name=?", new String[]{name}, null);
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            //根据id删除data中的相应数据
+            resolver.delete(uri, "display_name=?", new String[]{name});
+            uri = Uri.parse("content://com.android.contacts/data");
+            resolver.delete(uri, "raw_contact_id=?", new String[]{id + ""});
+        }
+        System.out.println("##################### DELETE END " + (System.currentTimeMillis() - t1) + "ms #########################");
+    }
+
+
+
 }

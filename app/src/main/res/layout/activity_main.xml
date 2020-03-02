@@ -78,7 +78,7 @@
     <!-- 数据展示区-->
     <EditText
             android:id="@+id/input1"
-            android:text="输入检索关键字"
+            android:text="3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/crudLayout"

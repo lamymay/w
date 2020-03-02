@@ -20,6 +20,7 @@
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
+            android:usesCleartextTraffic="true"
             android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -31,3 +32,11 @@
     </application>
 
 </manifest>
+
+<!--
+
+java.io.IOException: Cleartext HTTP traffic to xxx.xxx.xxx.xxx not permitted
+Android9.0 默认是禁止所有的http请求的，
+
+需要在代码中设置如下代码才可以正常进行网络请求： android:usesCleartextTraffic="true"
+-->

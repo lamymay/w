@@ -2,6 +2,8 @@ package com.arc.w.model;
 
 import lombok.*;
 
+import java.util.List;
+
 /**
  * 用户实体
  * 注解是使用插件 Lombok， bean可以省略手动写getter setter
@@ -17,19 +19,22 @@ public class AppContact {
 
     private static final long serialVersionUID = 1L;
 
-    //本系统中的id是主键
+    //后台统中的id是主键
     private Integer id;
+
+    //后台统唯一的用户id
+    private Long userId;
 
     //是每个通讯录中的id，不唯一，每个设备上的通讯录id各自独立
     private Integer contactId;
 
-    //    public String phone;
     public String displayName;
-    public String cellphone;
-
     public String nickname;
 
+    public String cellphone;
 
+    //电话号码集合
+    private List<String> phoneNumbers;
     private String telephone;
     private String email;
 
