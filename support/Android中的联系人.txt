@@ -1,0 +1,468 @@
+Android中的联系人.txt
+Android中的联系人存储是通过ContentProvider实现的。因此APP对系统通讯录进行操作涉及到ContentProvider接口的使用。
+
+1.	通讯录存储常用的数据库表
+使用有关接口前，首先了解一下通讯录数据库中常用的数据库表：
+
+表名	表用途
+contacts	联系人表，存储了实际的联系人姓名，头像，最后通话时间等信息。
+会对实际的联系人数据进行一定去重。
+raw_contacts	实际的联系人数据表，每一行是一个单独的联系人。
+会存在多行对应同一个contacts表中条目的情况。
+
+
+
+在编写代码时，实际传入的是mimetypes中的字符串参数，而不是ID值。
+
+以上数据库中所有表及字段的定义，都可在android.provider.ContactsContract中找到。
+通讯录存储的数据文件在/data/data/com.android.providers.contacts/databases/目录下，需要手机获取Root权限。
+
+
+
+
+用java的思想理解就是：
+假定表contacts 定义为user表，表raw_contacts定义为user_detail，
+
+则
+	user对user_detail是一对多关系
+	两个表中用户名称是唯一约束，
+	data表是 user_detail的从表，data表通过外键raw_contacts_id与user——detail（raw_contacts）表关联起来
+	一个人根据情况会有多条data数据。数据存储在data1-15这15列中，
+	注意：data中的16个列数据类型不同，依数据类型不同，data1-14的含义会不同；data15默认存储blob二进制形式的数据。
+	区分不同行数据的真实类型呢？是通过data表中mimetype_id列的值（整形）来进行区分。根据这一列的取值，对data1-14进行不同的解析。mimetype_id中数值与类型的对应关系在mimetypes表中定义
+
+
+
+
+在编写代码时，实际传入的是mimetypes中的字符串参数，而不是ID值。
+
+以上数据库中所有表及字段的定义，都可在android.provider.ContactsContract中找到。
+通讯录存储的数据文件在/data/data/com.android.providers.contacts/databases/目录下，需要手机获取Root权限。
+
+
+
+2.	对通讯录进行增删改查
+
+------------------------
+
+
+        Uri uri = ContactsContract.Contacts.CONTENT_URI;
+        ContentResolver contentResolver = context.getContentResolver();
+
+        //listAll
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            //新建一个联系人实例
+            MyContact temp = new MyContact();
+            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            //获取联系人姓名
+            temp.setId(contactId);  
+            temp.name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+            //获取联系人电话号码
+            Uri contentUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String sql = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + contactId;
+            Cursor phoneCursor = contentResolver.query(contentUri, null, sql, null, null);
+            while (phoneCursor.moveToNext()) {
+                String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                phone = phone.replace("-", "");
+                phone = phone.replace(" ", "");
+                temp.phone = phone;
+            }
+
+//            //获取联系人备注信息
+//            Cursor noteCursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, new String[]{ContactsContract.Data._ID, ContactsContract.CommonDataKinds.Nickname.NAME},
+//                    ContactsContract.Data.CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + "='"
+//                            + ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE + "'",
+//                    new String[]{contactId}, null);
+//            if (noteCursor.moveToFirst()) {
+//                do {
+//                    String note = noteCursor.getString(noteCursor
+//                            .getColumnIndex(ContactsContract.CommonDataKinds.Nickname.NAME));
+////                    temp.note = note;
+//                    Log.i("note:", note);
+//                } while (noteCursor.moveToNext());
+//            }
+
+
+
+
+2.1.	select 按电话号码查询联系人
+Uri phoneUri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI, Uri.encode(phone));
+
+ContentResolver resolver = context.getContentResolver();
+Cursor cursor = resolver.query(phoneUri, new String[]{ContactsContract.CommonDataKinds.Phone._ID, 
+    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.CONTACT_ID}, null, null, null);
+
+while (cursor.moveToNext()) {
+    int id = cursor.getInt(0);
+    String name = cursor.getString(1);
+    int contactId = cursor.getInt(2);
+    if (name.equals(user.getName())) {
+        deleteList.add(id);
+    }
+}
+
+注意这里使用的URL是ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI，而不是ContactsContract.PhoneLookup.CONTENT_FILTER_URI。
+这是由于PhoneLookup.CONTENT_FILTER_URI会以用户提供的手机号查询后，再使用标准格式的电话号码再次查找，会返回两个相同的结果。例如用户提供了号码17000000000，那么程序会先查询17000000000号码，再查询+86 17000000000，并且两次查询都会成功。
+
+2.2.	selectAll查询通讯录中所有联系人
+Uri uri = ContactsContract.Data.CONTENT_URI;
+ContentResolver resolver = context.getContentResolver();
+Cursor cursorUser = resolver.query(uri, new String[]{ContactsContract.CommonDataKinds.Phone._ID,
+    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID}, null, null, null);
+
+while( cursorUser.moveToNext()) {
+    int id = cursorUser.getInt(0); // 按上面数组的声明顺序获取
+    String name = cursorUser.getString(1);
+    int rawContactsId = cursorUser.getInt(2);
+}
+
+2.3.	delete删除联系人某项数据(Data中某一项)
+int id; // data表中对应的id值
+ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+ops.add(ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+    .withSelection(ContactsContract.Data._ID + "=?", new String[]{String.valueOf(d)})
+    .build());
+
+context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+2.4.insert向通讯录中添加新的联系人
+ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)  // 此处传入null添加一个raw_contact空数据
+    .build());
+ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)  // RAW_CONTACT_ID是第一个事务添加得到的，因此这里传入0，applyBatch返回的ContentProviderResult[]数组中第一项
+    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+    .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, userName)
+    .build());
+ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber)
+    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+    .build());
+
+context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+其中withValueBackReference接口传参代表此键值是事务中之前操作得到的结果，因此需要传入之前事务的index值。由于添加联系人是在第一步操作，对应结果数组的第0项。
+
+2.5.	update向已有联系人中添加新数据
+ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+    .withValue(ContactsContract.Data.RAW_CONTACT_ID, rawContactsId)  // 这里关键是传入正确的raw_contacts_id值
+    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber)
+    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+    .build());
+
+context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+
+
+
+附：类型mimetypes对照表(存放数据的类型)：
+_id mimetypes                           含义
+
+
+1 vnd.android.cursor.item/email_v2                电子邮件
+2 vnd.android.cursor.item/im                      即时通讯IM
+3 vnd.android.cursor.item/postal-address_v2       邮编地址？
+4 vnd.android.cursor.item/photo                   照片
+5 vnd.android.cursor.item/phone_v2                表示“电话”类型的数据；
+6 vnd.android.cursor.item/name                    表示“姓名”类型的数据，
+7 vnd.android.cursor.item/organization            组织
+8 vnd.android.cursor.item/nickname                昵称
+9 vnd.android.cursor.item/group_membership        组关系
+
+
+
+通讯录数据库在： 是存放在/data/data/com.android.providers.contacts/databases/contacts2.db
+表 data    所有联系人信息数据。通过raw_contact_id外键与raw_contacts建立联系。
+
+contacts与raw_contacts的区分
+一个raw_contacts对应一个联系人，程序中或用户操作生成新的联系人，就是直接在这个表中插入新条目。
+contacts是实际通讯录中显示的联系人——当raw_contacts中存在相同名称的联系人时，系统会将这几个联系人合并。
+（例如通过通讯录添加两个名字相同的名片，这时系统会提示是否要对这两个名片进行合并。）
+
+### data表
+
+raw_contact_id 属性用来连接 raw_contacts 表
+
+1.data表每一行都是一项数据(姓名，电话，Email，网址，生日等)。并通过外键raw_contacts_id与raw_contacts表关联起来。
+2.由1所述，一个联系人根据情况会有多条data数据。数据存储在data1-15这15列中。
+例如某一行存储电话号码，那么在表中data1列存储电话号码，data2列存储号码类型（单位／家庭／组织等）。
+又例如某一行存储的联系人姓名，那么data1列存储显示在界面上的名称，data2存储名，data3存储姓。
+3.依数据类型不同，data1-14的含义会不同；data15默认存储blob二进制形式的数据。
+4.那么又如何区分不同行数据的真实类型呢？是通过data表中mimetype_id列的值（整形）来进行区分。根据这一列的取值，对data1-14进行不同的解析。mimetype_id中数值与类型的对应关系在mimetypes表中定义。例如：
+
+
+
+### raw_contacts 表  存放联系人的 ID，_id属性为主键，声明为autoincrement，即不需要手动设置，其他属性也不需要手动设置就有默认值；display_name属性为姓名；sort_key属性可以用于查询后的排序
+
+
+
+
+------------
+三.重要数据
+
+URI
+
+对raw_contacts表添加、删除、更新操作：
+
+URI uri = content://com.android.contacts/raw_contacts;
+Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+
+对data表添加、删除、更新操作：
+URI = content://com.android.contacts/data;
+
+根据email对data表查询
+URI =content://com.android.contacts/data/emails/filter/*
+
+根据phone电话号码对data表查询
+URI =content://com.android.contacts/data/phone/filter/*
+
+如果要根据ID查询电话，可以
+URI = content://com.android.contacts/data；
+然后where条件为：raw_contact_id=? and mimetype = ?
+
+ 
+
+MIMETYPE
+
+ 
+电话：vnd.android.cursor.item/phone_v2
+姓名：vnd.android.cursor.item/name
+邮件：vnd.android.cursor.item/email_v2
+通信地址：vnd.android.cursor.item/postal-address_v2
+组织：vnd.android.cursor.item/organization
+照片：vnd.android.cursor.item/photo
+
+Data中的常量
+
+Data._ID： "_id"
+Data.DISPLAY_NAME：“display_name”
+Data.DATA1：“data1”
+Data.DATA2：“data2”
+
+Data.RAW_CONTACT_ID：“raw_contact_id”
+Data.MIMETYPE：“mimetype”
+
+
+四.增删改查的实现
+
+1.query
+
+(1)查询所有的联系人
+
+
+谁的联系人
+
+连接特定的 DNS 后缀: lan
+描述: Intel(R) Ethernet Connection (6) I219-V
+物理地址: ‎1C-69-7A-03-C5-0B
+已启用 DHCP: 是
+IPv4 地址: 192.168.2.195
+IPv4 子网掩码: 255.255.255.0
+获得租约的时间: 2020年2月27日 10:09:11
+租约过期的时间: 2020年2月28日 19:47:15
+IPv4 默认网关: 192.168.2.1
+IPv4 DHCP 服务器: 192.168.2.1
+IPv4 DNS 服务器: 192.168.2.1
+IPv4 WINS 服务器: 
+已启用 NetBIOS over Tcpip: 是
+连接-本地 IPv6 地址: fe80::5837:8a8f:87b:3cdd%6
+IPv6 默认网关: 
+IPv6 DNS 服务器: 
+
+
+
+
+=======================================================================================================
+
+
+https://segmentfault.com/a/1190000020082797
+
+https://www.cnblogs.com/liter7/p/5178674.html
+
+
+
+=======================================================================================================
+
+
+拉美西斯
+莎草纸
+
+
+
+=======================================================================================================
+
+
+
+###  
+[Android 自定义网络加载工具类 HttpURLConnectionUtils](https://www.jianshu.com/p/3da7f0dc11a0)
+
+    //Android 自定义网络加载工具类 HttpURLConnectionUtils
+    //使用样例 https://loopj.com/android-async-http/
+//    https://github.com/android-async-http/android-async-http
+    implementation 'com.loopj.android:android-async-http:1.4.10'
+
+
+
+
+###  
+[Spring Boot：RestTemplate](https://www.jianshu.com/p/bbd9848c0cfc)
+
+
+
+
+
+spring-android主要提供了两个重要的功能：
+
+1.Rest模板，很多Android应用都要与服务器进行交互，而现在很多互联网应用的服务器端都会提供Rest服务，数据格式一般是json、xml、rss等，如果使用spring-android，这将大大方便你的Android应用与服务器端的交互，spring-android在解析json，xml都是非常方便的；
+
+2.Auth授权验证，现在很多互联网应用都提供了开放的API服务，而你的Android应用要接入到这些服务中去，往往要经过授权才行，现在很多应用都使用Auth授权认证，如twitter、facebook、新浪微博等，如果使用spring-android，在授权验证这块将会非常方便。
+
+如何使用spring-android呢？
+
+
+1.首先要去http://www.springsource.org/spring-android 下载spring-android，然后解压。
+
+2.新建一个Android项目，然后将解压后的spring-android里的spring-android-core-1.0.1.RELEASE.jar和spring-android-rest-template-1.0.1.RELEASE.jar放到Android项目的lib目录下，因为要访问在网络，所以要在AndroidManifest.xml文件下加入<uses-permission android:name=”android.permission.INTERNET”/>​
+
+3.acitivity_main.xml文件如下：
+
+
+
+
+
+
+
+
+
+
+
+### save one contact
+{
+    
+"contactId":1,
+"displayName":"叶超",
+"cellphone":"18674192462",
+"email":"2320158601@qq.com",
+ "im":"2320158601"   
+}
+
+
+
+# the server error
+
+{
+    "timestamp": "2020-02-27T06:29:46.105+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "com.arc.zero.controller.data.app.ContactController.save(Lcom/arc/core/model/domain/app/AppContact;)Lcom/arc/core/model/vo/ResponseVo;",
+    "path": "/zero/contacts"
+}
+
+
+
+
+
+#  create java code by tool
+
+{
+"output":"C:\Users\z\Desktop\temp\code",
+"onlyModelMapperAndXml":false,
+"onlyEnableEndOfLineCommentAndDisableMultilineComment":false,
+"javaPackage":"com.arc",
+
+"rootNamespace":"com.arc",
+"modelNamespace":"com.arc.model.app",
+"requestNamespace":"com.arc.model.app.request",
+"mapperNamespace":"com.arc.mapper.app",
+"serviceNamespace":"com.arc.service.app",
+"serviceImplNamespace":"com.arc.service.app.impl",
+"controllerNamespace":"com.arc.controller.data.app",
+
+"url":"jdbc:mysql://127.0.0.1:3306/zero?useUnicode=true&characterEncoding=UTF-8&useAffectedRows=true&useSSL=false&serverTimezone=GMT%2B8",
+"driverClassName":"com.mysql.cj.jdbc.Driver",
+"username":"root",
+"password":"admin",
+
+"schemaName":"zero",
+"tableName":"t_app_contact",
+"tableAlias":"app_contact_",
+"useCustomizeDataSourceByControllerReceived":true
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================================================================
+
+工具
+
+
+使用Spring RestTemplate for Android进行经过身份验证的POST请求
+https://answer-id.com/53832569
+
+
+https://github.com/bumptech/glide
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================================================================
+
+
+
+
+
+
+
+#### 附录
+
+原文链接：https://blog.csdn.net/ucxiii/article/details/59112435
+
+https://www.tianmaying.com/snippet/542

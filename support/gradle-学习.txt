@@ -1,0 +1,8 @@
+
+Gradle 让 studio 下载太慢了点，直接从官网要快点
+Gradle 官方网站：http://gradle.org/release-candidate/
+Gradle 下载地址： http://services.gradle.org/distributions/
+
+链接：https://www.jianshu.com/p/168e7bd7ef5a
+
+
