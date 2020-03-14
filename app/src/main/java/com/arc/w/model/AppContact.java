@@ -34,7 +34,9 @@ public class AppContact {
     public String cellphone;
 
     //电话号码集合
-    private List<String> phoneNumbers;
+    private List<String> phones;
+    private List<String> emails;
+
     private String telephone;
     private String email;
 

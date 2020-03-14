@@ -264,7 +264,7 @@ public class ContactTool {
                 phoneCursor = null;
             }
         }
-        appContact2.setPhoneNumbers(phoneNumbers);
+        appContact2.setPhones(phoneNumbers);
         return appContact2;
     }
 

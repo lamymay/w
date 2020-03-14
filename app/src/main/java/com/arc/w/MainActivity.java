@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public final static String uriForPostListAll = "http://192.168.2.195:8001/zero/contacts/sync";
+    public final static String uriForPostListAll = "http://192.168.2.243:8001/zero/contacts/sync";
 
     private void post(final AppContactRequest requestData) {
         Map<String, Object> resultMap = new HashMap<>();
@@ -348,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
             int contactId = cursor.getInt(0);
             AppContact contact = new AppContact();
             List<String> phoneNumbers = new ArrayList<>();
+            List<String> emails = new ArrayList<>();
 
             contact.setContactId(contactId);
 
@@ -376,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
                     contact.setCellphone(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/email_v2")) {  //如果是email
+                    emails.add(data);
                     contact.setEmail(data);
 
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/postal-address_v2")) { //如果是地址
@@ -391,7 +393,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (cursor2.getString(cursor2.getColumnIndex("mimetype")).equals("vnd.android.cursor.item/im")) {  //如果是即时通讯IM
                     contact.setIm(data);
                 }
-                contact.setPhoneNumbers(phoneNumbers);
+                contact.setPhones(phoneNumbers);
+                contact.setEmails(emails);
             }
             //            Log.i("Contacts", str);
             rows.add(contact);
