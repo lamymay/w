@@ -1,4 +1,4 @@
-package com.arc.util;
+package com.arc.app.contact;
 
 import android.content.*;
 import android.database.Cursor;
@@ -7,7 +7,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.arc.model.AppContact;
+import com.arc.app.contact.model.AppContact;
 
 import java.util.ArrayList;
 import java.util.HashMap;

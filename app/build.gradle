@@ -35,7 +35,7 @@ android {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    //implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     //添加apt依赖
     //    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     //    implementation 'org.glassfish:javax.annotation:10.0-b28'

@@ -1,4 +1,4 @@
-package com.arc.util;
+package com.arc.app.contact;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,8 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.arc.app.contact.R;
-import com.arc.model.AppContact;
+import com.arc.app.contact.model.AppContact;
 
 import java.util.LinkedList;
 import java.util.List;

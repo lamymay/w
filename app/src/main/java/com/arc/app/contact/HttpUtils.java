@@ -1,4 +1,4 @@
-package com.arc.util;
+package com.arc.app.contact;
 
 /**
  * @author 叶超

@@ -1,4 +1,4 @@
-package com.arc.util;
+package com.arc.app.contact;
 
 import java.io.*;
 import java.net.HttpURLConnection;
