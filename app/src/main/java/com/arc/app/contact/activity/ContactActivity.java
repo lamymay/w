@@ -31,7 +31,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author arc
+ * @author may
+ * todo 需要完成的问题
+ * 1 一个人多个电话怎么插入?
+ * 2 怎么发送post请求?
+ * 3 怎么解析返回值
+ * 4 怎么加快处理速度?
+ * 5 怎么读取一个人的多个电话号码?
  */
 public class ContactActivity extends AppCompatActivity {
 
@@ -225,8 +231,6 @@ public class ContactActivity extends AppCompatActivity {
 //            }
 //        }
 //    }
-
-
 
 
     //------------------------------
@@ -532,7 +536,7 @@ public class ContactActivity extends AppCompatActivity {
         if (hasAllGranted) {
             List<AppContact> contacts = ContactTool.listAllContacts(ContactActivity.this);
             showContacts(contacts.toString());
-            Toast.makeText(this, "APP拥有的确认授权"+(Arrays.toString(grantResults)), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "APP拥有的确认授权" + (Arrays.toString(grantResults)), Toast.LENGTH_SHORT).show();
         } else {
             //拒绝授权做的处理，弹出弹框提示用户授权
             dealWithDeniedPermission(ContactActivity.this, permissions[0]);
@@ -557,7 +561,7 @@ public class ContactActivity extends AppCompatActivity {
 
     public void dealWithDeniedPermission(final Activity context, String permission) {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(context, permission)) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
             builder.setTitle("操作提示")
                     .setMessage("注意：当前缺少必要权限！\n请点击“设置”-“权限”-打开所需权限\n最后点击两次后退按钮，即可返回")
                     .setPositiveButton("去授权", new DialogInterface.OnClickListener() {
