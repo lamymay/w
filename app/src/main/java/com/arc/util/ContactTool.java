@@ -1,4 +1,4 @@
-package com.arc.w.util;
+package com.arc.util;
 
 import android.content.*;
 import android.database.Cursor;
@@ -7,9 +7,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.arc.w.MainActivity;
-import com.arc.w.model.AppContact;
-import org.w3c.dom.Text;
+import com.arc.model.AppContact;
 
 import java.util.ArrayList;
 import java.util.HashMap;

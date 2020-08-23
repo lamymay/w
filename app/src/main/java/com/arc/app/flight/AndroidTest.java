@@ -44,7 +44,7 @@
 //        m_EditText.setOnKeyListener(new EditText.OnKeyListener() {
 //            @Override
 //            public boolean onKey(View arg0, int arg1, KeyEvent arg2)            {
-//                // TODO Auto-generated method stub
+//
 //                // 得到文字，将其显示到TextView中
 ////          m_TextView.setText("文本框中内容是：" + m_EditText.getText().toString());
 //                return false;
@@ -54,7 +54,7 @@
 //        m_EditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 //            @Override
 //            public void onFocusChange(View v, boolean hasFocus) {
-//                // TODO Auto-generated method stub
+//
 //                mNumber = ((EditText)v).getText().toString();
 //                Log.d(TAG, "mNumber = " + mNumber);
 //                getPeople();
@@ -65,18 +65,18 @@
 //        m_EditText.addTextChangedListener(new TextWatcher() {
 //            @Override
 //            public void afterTextChanged(Editable s) {
-//                // TODO Auto-generated method stub
+//
 //            }
 //
 //            @Override
 //            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                // TODO Auto-generated method stub
+//
 //
 //            }
 //
 //            @Override
 //            public void onTextChanged(CharSequence s, int start, int before,                                      int count) {
-//                // TODO Auto-generated method stub
+//
 //                // 得到文字，将其显示到TextView中
 //                m_TextView.setText("文本框中内容是：" + m_EditText.getText().toString());
 //            }

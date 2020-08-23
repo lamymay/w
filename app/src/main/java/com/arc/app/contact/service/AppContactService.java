@@ -1,10 +1,10 @@
-package com.arc.w.service;
+package com.arc.app.contact.service;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import com.arc.w.model.AppContact;
+import com.arc.model.AppContact;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.arc.w;
+package com.arc.app.contact.activity;
 
 import android.Manifest;
 import android.app.Activity;
@@ -18,11 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.alibaba.fastjson.JSON;
-import com.arc.w.model.AppContact;
-import com.arc.w.model.request.AppContactRequest;
-import com.arc.w.service.AppContactService;
-import com.arc.w.util.ContactTool;
-import com.arc.w.util.MyContactListViewAdapter;
+import com.arc.app.contact.R;
+import com.arc.model.AppContact;
+import com.arc.model.contact.AppContactRequest;
+import com.arc.app.contact.service.AppContactService;
+import com.arc.util.ContactTool;
+import com.arc.util.MyContactListViewAdapter;
 
 import java.io.*;
 import java.net.HttpURLConnection;

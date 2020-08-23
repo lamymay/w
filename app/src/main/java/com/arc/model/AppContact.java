@@ -1,6 +1,4 @@
-package com.arc.w.model;
-
-import lombok.*;
+package com.arc.model;
 
 import java.util.List;
 

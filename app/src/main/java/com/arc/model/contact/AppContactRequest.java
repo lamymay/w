@@ -1,6 +1,6 @@
-package com.arc.w.model.request;
+package com.arc.model.contact;
 
-import com.arc.w.model.AppContact;
+import com.arc.model.AppContact;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

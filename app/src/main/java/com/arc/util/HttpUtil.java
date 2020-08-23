@@ -1,15 +1,8 @@
-package com.arc.w.util;
-
-import com.alibaba.fastjson.JSON;
-import com.arc.w.model.request.AppContactRequest;
+package com.arc.util;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author 叶超

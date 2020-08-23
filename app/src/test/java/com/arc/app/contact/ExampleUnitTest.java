@@ -1,4 +1,4 @@
-package com.arc.w;
+package com.arc.app.contact;
 
 import org.junit.Test;
 
