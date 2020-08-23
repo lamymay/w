@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="543"
+    android:versionName="4.3.14"
+    android:installLocation="0"
+    package="com.path"
+    platformBuildVersionCode="23"
+    platformBuildVersionName="6.0-2166767">
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="22" />
+
+    <permission
+        android:name="com.path.permission.C2D_MESSAGE"
+        android:protectionLevel="0x2" />
+
+    <uses-feature
+        android:glEsVersion="0x20000"
+        android:required="true" />
+
+    <supports-screens
+        android:smallScreens="false"
+        android:normalScreens="true"
+        android:largeScreens="true" />
+
+    <uses-permission
+        android:name="com.path.permission.C2D_MESSAGE" />
+
+    <uses-permission
+        android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission
+        android:name="android.permission.READ_CONTACTS" />
+
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission
+        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission
+        android:name="com.android.vending.BILLING" />
+
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS" />
+
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS" />
+
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS" />
+
+    <uses-permission
+        android:name="android.permission.VIBRATE" />
+
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission
+        android:name="com.path.permission.MAPS_RECEIVE" />
+
+    <uses-permission
+        android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+
+    <uses-permission
+        android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-permission
+        android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-configuration
+        android:reqTouchScreen="3" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen.multitouch"
+        android:required="true" />
+
+    <application
+        android:theme="@ref/0x7f0d0040"
+        android:label="@ref/0x7f090520"
+        android:icon="@ref/0x7f030000"
+        android:name="com.path.KirbyApp"
+        android:description="@ref/0x7f090074"
+        android:allowBackup="false"
+        android:logo="@ref/0x7f020031"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true">
+
+        <meta-data
+            android:name="com.path.environment"
+            android:value="production" />
+
+        <receiver
+            android:name="com.mixpanel.android.mpmetrics.GCMReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <action
+                    android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category
+                    android:name="com.path" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.mixpanel.android.MPConfig.ResourcePackageName"
+            android:value="com.path" />
+
+        <meta-data
+            android:name="com.mixpanel.android.MPConfig.AutoShowMixpanelUpdates"
+            android:value="false" />
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="0b726735a31356c1411fa3e4a1d9eb2690275690" />
+
+        <meta-data
+            android:name="com.path.re-prompt"
+            android:value="false" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@ref/0x7f090563" />
+
+        <activity
+            android:theme="@ref/0x01030010"
+            android:label="@ref/0x7f090520"
+            android:name="com.facebook.LoginActivity" />
+
+        <receiver
+            android:name="com.path.gcm.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category
+                    android:name="com.path" />
+            </intent-filter>
+
+            <intent-filter>
+
+                <action
+                    android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category
+                    android:name="com.path" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.path.base.receivers.RichNotificationClickReceiver"
+            android:enabled="true">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.path.action.rich_notification_click" />
+
+                <category
+                    android:name="com.path" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.path.base.receivers.ConnectivityChangedReceiver">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+
+                <action
+                    android:name="com.path.action.retry_upload" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.path.receivers.BootReceiver">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.adjust.sdk.AdjustReferrerReceiver"
+            android:exported="true">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.path.services.DaemonService"
+            android:process=":daemon" />
+
+        <service
+            android:name="com.path.services.UploadService" />
+
+        <activity
+            android:theme="@ref/0x7f0d003f"
+            android:name="com.path.activities.KirbyEntryPointActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.SEND" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:mimeType="image/*" />
+
+                <data
+                    android:mimeType="video/*" />
+            </intent-filter>
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.VIEW" />
+
+                <data
+                    android:scheme="https"
+                    android:host="path.com"
+                    android:pathPrefix="/m/moments" />
+
+                <data
+                    android:scheme="https"
+                    android:host="path.com"
+                    android:pathPrefix="/m/users" />
+
+                <data
+                    android:scheme="https"
+                    android:host="path.com"
+                    android:pathPrefix="/p" />
+
+                <data
+                    android:scheme="https"
+                    android:host="path.com"
+                    android:pathPrefix="/build" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+
+                <category
+                    android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.VIEW" />
+
+                <data
+                    android:scheme="path" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+
+                <category
+                    android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name="com.path.activities.EntryPointActivity"
+            android:targetActivity="com.path.activities.KirbyEntryPointActivity">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.activities.MainActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x3" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.FriendSuggestionsActivity"
+            android:configChanges="0x4a0" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.FriendSuggestionPeoplePicker"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.share.FriendsToolActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.share.ShareByGmailActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.share.ShareByContactsActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.share.ShareByTwitterActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.base.activities.composers.ComposePlaceMapActivity"
+            android:configChanges="0x420"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.composers.ShareMomentActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x14" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.ChoosePeopleActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.composers.ComposeEmailActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x14" />
+
+        <activity
+            android:name="com.path.activities.oauth.FoursquareOauthActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.activities.oauth.TwitterOauthActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.activities.GoogleOauthActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.activities.oauth.TumblrOauthActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.activities.oauth.WordPressOauthActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.activities.NoActionBarDividerActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.activities.test.DebugActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.activities.FriendPopover"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.activities.PromotePathPopover"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.activities.share.ShareByQRCodePopover"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.activities.ic.tutorial.ICTutorialPopover"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.activities.share.SkinnyInvitePopover"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x14" />
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.activities.SettingsActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <service
+            android:name="com.path.gcm.GcmIntentService" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@ref/0x7f110008" />
+
+        <uses-library
+            android:name="com.google.android.maps"
+            android:required="false" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyDzntODUotjvEJW2Ao4JDwjTZLcMAKdizE" />
+
+        <receiver
+            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:exported="true">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.path.base.receivers.LogoutBroadcastReceiver">
+
+            <intent-filter>
+
+                <action
+                    android:name="com.path.ACTION_LOGOUT" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.path.base.authentication.AccountAuthenticatorService">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@ref/0x7f070001" />
+        </service>
+
+        <activity
+            android:theme="@ref/0x7f0d0042"
+            android:name="com.path.base.activities.store.StoreActivity"
+            android:configChanges="0x20"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.base.activities.store.ProductActivity"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0049"
+            android:name="com.path.base.activities.store.SubscribeToPremiumPopupActivity"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.base.activities.store.PremiumSubscribedActivity"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.base.activities.ChoosePlaceMapActivity"
+            android:configChanges="0x420"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.base.activities.VideoCameraActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4b0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:name="com.path.base.activities.CropImageActivity"
+            android:configChanges="0x4b0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0046"
+            android:name="com.path.base.activities.VideoActivity"
+            android:configChanges="0x4a0" />
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.base.activities.composers.ComposeMediaActivity"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x5" />
+
+        <activity
+            android:theme="@ref/0x7f0d0033"
+            android:name="com.path.base.activities.nux.NuxSplashScreen"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x420"
+            android:windowSoftInputMode="0x3" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.base.activities.PasswordChangerPopover"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x14" />
+
+        <activity
+            android:theme="@ref/0x7f0d0033"
+            android:name="com.path.base.activities.nux.NuxScreenActivity"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x420"
+            android:windowSoftInputMode="0x12" />
+
+        <activity
+            android:theme="@ref/0x7f0d0043"
+            android:name="com.path.base.activities.PhoneCountryChooser"
+            android:launchMode="1"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x3" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.base.activities.AboutPathActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x12" />
+
+        <activity
+            android:theme="@ref/0x7f0d0041"
+            android:name="com.path.base.activities.FragmentActivity"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0044"
+            android:name="com.path.base.activities.PortraitFragmentActivity"
+            android:screenOrientation="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+
+        <activity
+            android:theme="@ref/0x7f0d0048"
+            android:name="com.path.base.activities.announcements.BasicAnnouncementPopover"
+            android:launchMode="1"
+            android:configChanges="0x4a0"
+            android:windowSoftInputMode="0x2" />
+    </application>
+</manifest>

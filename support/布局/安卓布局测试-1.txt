@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+
+        tools:context=".MainActivity">
+    <!--
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+    第一个布局的一个属性
+
+                android:orientation="horizontal"
+    -->
+
+
+    <RelativeLayout
+            android:id="@+id/crudBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:clipChildren="false"
+            >
+
+        <Button
+                android:id="@+id/saveBtn"
+                android:text="save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                />
+
+        <Button
+                android:id="@+id/deleteBtn"
+                android:text="delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/saveBtn"
+                />
+
+        <Button
+                android:id="@+id/updateBtn"
+                android:text="update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/deleteBtn"
+                />
+
+        <Button
+                android:id="@+id/getOneBtn"
+                android:text="get"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/updateBtn"
+                android:layout_gravity="center_horizontal"/>
+
+        <Button
+                android:id="@+id/listAllBtn"
+                android:text="list"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/getOneBtn"
+                android:layout_gravity="center_horizontal"
+                android:layout_alignParentRight="true"
+                />
+    </RelativeLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="输入检索关键字"
+            android:id="@+id/input1"
+            android:layout_below="@id/crudBtn"
+            />
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/input1"
+            >
+
+        <TextView
+                android:id="@+id/outputText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="显示联系人信息"
+                />
+    </ScrollView>
+
+    <!--
+       android:padding="7dp"
+    -->
+
+
+</RelativeLayout>
+
